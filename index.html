@@ -25,7 +25,7 @@
   .desc{margin-top:10px;color:#3b4863}
   .more{color:#0b62ff;text-decoration:underline;cursor:pointer}
 
-  /* Right column tabs */
+  /* Right column tabs (Video/Chat) */
   .tabs{display:flex;gap:26px;padding:14px 16px;border-bottom:1px solid var(--line)}
   .tab{position:relative;padding:8px 4px;font-weight:700;color:#0c1a34;opacity:.9;cursor:pointer}
   .tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-14px;height:3px;border-radius:2px;background:var(--accent)}
@@ -93,27 +93,50 @@
   .confirm .actions{display:flex;justify-content:center;gap:10px}
   .btn.dark{background:#0F2D56;color:#fff;border-color:#0F2D56}
 
-  /* End-of-Meeting Drawer */
+  /* End-of-Meeting Drawer (REVISED) */
   .eom-wrap{position:fixed;inset:0;display:none;z-index:70}
   .eom-wrap.open{display:block}
   .eom-scrim{position:absolute;inset:0;background:rgba(10,20,40,.25)}
-  .eom{position:absolute;right:0;top:0;height:100%;width:min(560px,95vw);background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s}
+  .eom{position:absolute;right:0;top:0;height:100%;width:min(820px,95vw);background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s}
   .eom.open{transform:translateX(0)}
-  .eom-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
-  .stepper{display:flex;gap:10px}
-  .step{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:999px;border:1px solid #e7edf5;cursor:pointer}
-  .step.active{border-color:#0b62ff;background:#eef4ff}
+  .eom-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .eom-tabs{display:flex;gap:22px}
+  .eom-tabs .tab{padding:8px 6px;font-weight:800;cursor:pointer}
+  .eom-tabs .tab.active{color:#0F2D56;position:relative}
+  .eom-tabs .tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:3px;background:#0F2D56;border-radius:3px}
   .eom-body{padding:14px 16px;overflow:auto}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  @media (max-width:720px){.row{grid-template-columns:1fr}}
-  .table{width:100%;border-collapse:collapse}
-  .table th,.table td{border-bottom:1px solid #eef2f7;padding:8px;text-align:left}
+  .eom-footer{display:flex;justify-content:flex-end;gap:10px;padding:12px 16px;border-top:1px solid var(--line)}
+
+  /* chips reused */
   .chip{border:1px solid #d8e2f2;background:#f5f8ff;border-radius:999px;padding:4px 8px;font-size:12px;cursor:pointer}
   .chip.selected{background:#0b62ff;border-color:#0b62ff;color:#fff}
-  .footer{display:flex;justify-content:space-between;gap:10px;padding:12px 16px;border-top:1px solid var(--line)}
-  .muted{color:#6b7790}
 
-  /* Follow-Up Summary (added) */
+  /* RTE-like editor boxes (for Summary/Next Steps) */
+  .rte{border:1px solid #e6ebf2;border-radius:10px;overflow:hidden;background:#fff}
+  .rte-toolbar{display:flex;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px solid #eef2f7;background:#fbfcfe}
+  .rte-toolbar .btn{padding:6px 8px;border-radius:8px;font-weight:600}
+  .rte-area{min-height:200px;padding:12px;outline:none}
+  .rte-area:empty:before{content:attr(data-placeholder);color:#9aa4b6}
+
+  /* List adders (Decisions / Questions / Issues) */
+  .list-add .input{height:40px}
+  .list-items{margin-top:8px;padding-left:18px}
+  .list-items li{margin:6px 0}
+  .list-items li .rm{margin-left:8px;color:#9aa4b6;cursor:pointer}
+
+  /* Existing Journeys preview */
+  .journey-pills{display:flex;gap:10px;flex-wrap:wrap}
+  .journey-pill{border:1px solid #e6ebf2;background:#fafcff;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
+  .journey-pill.active{background:#eef4ff;border-color:#cfe0ff;color:#0b3b91}
+  .journey-preview{margin-top:12px;border:1px solid #e8eef7;border-radius:10px;overflow:hidden}
+  .phase{border-bottom:1px solid #eef2f7;background:#fff}
+  .phase:last-child{border-bottom:0}
+  .phase-h{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-weight:700}
+  .phase-h .status{font-weight:600;color:#6a7690}
+  .phase-b{display:none;padding:12px 14px;color:#425170}
+  .phase.open .phase-b{display:block}
+
+  /* Follow-Up Summary (added earlier) */
   .fus-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
   .fus-title{font-size:20px;font-weight:800}
   .fus-meta{display:flex;gap:14px;align-items:center;color:#4b5a78}
@@ -125,6 +148,26 @@
   .fus-list{margin:0;padding-left:18px;color:#2b3856}
   .fus-row{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;margin-top:8px}
   .fus-note{padding:10px 16px;border-top:1px solid var(--line);font-size:12px;color:#6b7790}
+
+  /* ===== Attendee Tasks (new) ===== */
+  .att-card .panel{padding:16px;display:block;min-height:0;color:inherit;justify-content:flex-start;align-items:stretch}
+  .task-list{display:flex;flex-direction:column;gap:12px}
+  .task-item{border:1px solid #e7edf5;border-radius:12px;padding:12px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+  .task-title{font-weight:700}
+  .task-meta{color:#667085;font-size:14px;margin-top:2px}
+  .task-actions{display:flex;gap:8px;align-items:center}
+  .kebab{border:1px solid #e7edf5;border-radius:8px;background:#fff;cursor:pointer;padding:6px}
+  .menu{position:relative}
+  .menu-flyout{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #e7edf5;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.08);display:none;min-width:180px;z-index:35}
+  .menu.open .menu-flyout{display:block}
+  .menu-item{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid #f2f5fa;cursor:pointer}
+  .menu-item:last-child{border-bottom:0}
+  .menu-item:hover{background:#f8fafc}
+  /* Narrower task modal than global dialog */
+  #taskModal .dialog{width:min(900px,96vw);max-height:86vh}
+
+  /* Tag-style multi-select (reusing base .ms styles) */
+  .ms-option[data-value]{cursor:pointer}
 </style>
 </head>
 <body>
@@ -150,8 +193,8 @@
       </div>
 
       <!-- Right column -->
-      <div class="card">
-        <div class="tabs">
+      <div class="card" id="rcard">
+        <div class="tabs" id="rcardTabs">
           <div class="tab active" data-tab="video">Video</div>
           <div class="tab" data-tab="chat">Chat</div>
         </div>
@@ -159,11 +202,63 @@
         <div class="panel" id="chatPanel" style="display:none">Coming Soon..</div>
       </div>
     </div>
+    <!-- Follow-Up Summary heading outside the card -->
+<div class="section-head" id="followUpHead" style="margin-top:28px; display:none">
+  <div class="section-title">Follow-Up Summary</div>
+</div>
+    <!-- Follow-Up Summary card (hidden until Smart Tasks run) -->
+    <div id="followUpCard" class="card" style="display:none; margin-bottom:12px">
+      <div class="fus-head" style="justify-content:flex-start; gap:12px">
+        <div class="fus-meta">
+          <span class="chip"><strong>Contact:</strong> <span id="fuContact">Vladimir</span></span>
+          <span class="chip selected"><strong>Status:</strong> <span id="fuStatus">Attended</span></span>
+        </div>
+      </div>
+      <div class="fus-body">
+        <div class="fus-section">
+          <h4>Journeys Selected</h4>
+          <div id="fuJourneys" class="fus-tags"></div>
+        </div>
+        <div class="fus-section">
+          <h4>Smart Tasks Queued</h4>
+          <ol id="fuTasks" class="fus-list"></ol>
+          <div class="fus-row">
+            <div class="muted">Queued</div>
+            <div id="fuQueuedTime">Just now</div>
+          </div>
+          <div class="fus-row">
+            <div class="muted">Applies To</div>
+            <div id="fuApplies">Vladimir</div>
+          </div>
+        </div>
+      </div>
+      <div class="fus-note">The journeys have been triggered, and the smart tasks are now in queue.</div> 
+    </div>
+    <!-- ===== Attendee Tasks (inserted) ===== -->
+    <div class="section-head" style="margin-top:28px">
+      <div class="section-title">Attendee Tasks</div>
+      <div>
+        <button id="addTaskBtn" class="btn primary">Add Task</button>
+      </div>
+    </div>
+    <div class="card att-card">
+      <div class="tabs" id="attTabs">
+        <div class="tab active" data-tab="pre">Pre-Meeting</div>
+        <div class="tab" data-tab="post">Post-Meeting</div>
+      </div>
+      <div class="panel" id="prePanel">
+        <div id="preList" class="task-list"></div>
+      </div>
+      <div class="panel" id="postPanel" style="display:none">
+        <div id="postList" class="task-list"></div>
+      </div>
+    </div>
+    <!-- ===== End Attendee Tasks ===== -->
 
     <!-- Follow-Up Summary heading outside the card -->
-    <div class="section-head" style="margin-top:28px">
-      <div class="section-title">Follow-Up Summary</div>
-    </div>
+<div class="section-head" id="followUpHead" style="margin-top:28px; display:none">
+  <div class="section-title">Follow-Up Summary</div>
+</div>
     <!-- Follow-Up Summary card (hidden until Smart Tasks run) -->
     <div id="followUpCard" class="card" style="display:none; margin-bottom:12px">
       <div class="fus-head" style="justify-content:flex-start; gap:12px">
@@ -225,38 +320,78 @@
     </div>
   </div>
 
-  <!-- End-of-Meeting Drawer -->
+  <!-- Add Task Modal (Attendee Tasks) -->
+  <div class="modal" id="taskModal">
+    <div class="dialog" id="taskDialog">
+      <div class="dragbar"><h4 style="margin:0">Add Task</h4><button class="close-x" id="taskClose">✕</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Task Name</label><input id="tName" class="input" placeholder="e.g., Fill Out Form"/></div>
+        <div class="row">
+          <div class="field"><label>Task Type</label>
+            <select id="tType">
+              <option value="" disabled selected>Select Task Type</option>
+              <option>User</option>
+              <option>Contact</option>
+            </select>
+          </div>
+          <div class="field"><label>Action</label>
+            <select id="tAction">
+              <option value="" disabled selected>Select Action</option>
+              <option>Send Email</option>
+              <option>Send Text</option>
+              <option>Fill in Contact Fields</option>
+              <option>Fill Out Form</option>
+              <option>Watch Video</option>
+              <option>Read Article</option>
+            </select>
+          </div>
+        </div>
+        <div id="tExtras"></div>
+        <div class="field"><label>Short Description</label><input id="tShort" class="input" placeholder="Optional short description"/></div>
+        <div class="field"><label>Long Description</label><textarea id="tLong" class="input" placeholder="Optional details..."></textarea></div>
+      </div>
+      <div class="modal-actions"><button class="btn" id="taskCancel">Cancel</button><button class="btn primary" id="taskSave">Add Task</button></div>
+    </div>
+  </div>
+
+  <!-- Remove Confirm (Attendee Tasks) -->
+  <div class="confirm" id="removeConfirm">
+    <div class="box">
+      <div style="display:flex;justify-content:flex-end"><button class="btn" id="remClose" aria-label="Close">✖</button></div>
+      <div class="q">Are you sure you want to remove this task?</div>
+      <div class="actions">
+        <button class="btn dark" id="remYes">YES</button>
+        <button class="btn" id="remNo">NO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- End-of-Meeting Drawer (REVISED MARKUP) -->
   <div class="eom-wrap" id="eomWrap">
     <div class="eom-scrim" id="eomScrim"></div>
     <aside class="eom" id="eom">
       <div class="eom-head">
-        <strong>End of Meeting</strong>
-        <div class="stepper">
-          <!-- labels only + clickable -->
-          <div class="step" id="s1" data-step="1">Attendees</div>
-          <div class="step" id="s2" data-step="2">Journeys</div>
-          <div class="step" id="s3" data-step="3">Review</div>
+        <div class="eom-tabs" id="eomTabs">
+          <div class="tab active" data-tab="summary">End of Meeting Summary</div>
+          <div class="tab" data-tab="automation">Automation</div>
         </div>
         <button class="close-x" id="eomClose">✕</button>
       </div>
       <div class="eom-body" id="eomBody"></div>
-      <div class="footer">
-        <div class="muted" id="eomCounter">1 selected • 0 tasks</div>
-        <div>
-          <button class="btn" id="backBtn">Back</button>
-          <button class="btn primary" id="nextBtn">Next</button>
-        </div>
+      <div class="eom-footer">
+        <button class="btn" id="eomNextBtn">Next</button>
+        <button class="btn primary" id="submitEndBtn" style="display:none">Submit and End Meeting</button>
       </div>
     </aside>
   </div>
 
 <script>
-  // Tabs
-  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  /* ===== Right-column tabs (scoped to #rcard) ===== */
+  document.querySelectorAll('#rcardTabs .tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('#rcardTabs .tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
     const showVideo = t.dataset.tab==='video';
     document.getElementById('videoPanel').style.display = showVideo?'flex':'none';
-    document.getElementById('chatPanel').style.display = showVideo?'none':'flex';
+    document.getElementById('chatPanel').style.display = showVideo?'flex':'none';
   }));
   document.getElementById('moreBtn').addEventListener('click', (e)=>{
     e.currentTarget.parentElement.textContent = 'A quick, personalized walkthrough of Segwik to help new users get oriented, answer questions, and schedule a 30-day check-in for ongoing support.';
@@ -476,7 +611,7 @@
   closeModalBtn.addEventListener('click', closeModal); cancelBtn.addEventListener('click', closeModal);
   (function(){ let startX, startY, startL, startT, dragging=false; dragbar.addEventListener('mousedown', (e)=>{ dragging = true; const r = dialog.getBoundingClientRect(); startX = e.clientX; startY = e.clientY; startL = r.left; startT = r.top; document.body.style.userSelect='none'; }); window.addEventListener('mousemove', (e)=>{ if(!dragging) return; const dx = e.clientX - startX; const dy = e.clientY - startY; dialog.style.position='fixed'; dialog.style.left = (startL + dx) + 'px'; dialog.style.top = (startT + dy) + 'px'; }); window.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect=''; }); })();
 
-  // ------- Float windows (view forms/docs) – background NOT dark -------
+  // ------- Float windows (view forms/docs/video) – background NOT dark -------
   function createFloatWindow(title, bodyHTML){
     const fw = document.createElement('div'); fw.className='floatwin';
     fw.innerHTML = `<div class="dragbar"><h4 style="margin:0">${title}</h4><button class="close-x">✕</button></div><div class="modal-body">${bodyHTML}</div>`;
@@ -489,6 +624,18 @@
     window.addEventListener('mousemove', (e)=>{ if(!dragging) return; const dx=e.clientX-sx, dy=e.clientY-sy; fw.style.left=(sl+dx)+'px'; fw.style.top=(st+dy)+'px'; fw.style.position='fixed'; });
     window.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect=''; });
     return fw;
+  }
+  function openVideoWindow(name){
+    const videoSrc = 'https://www.w3schools.com/html/mov_bbb.mp4';
+    const html = `
+      <div style="display:grid;gap:10px">
+        <video controls style="width:100%;border-radius:10px;outline:none">
+          <source src="${videoSrc}" type="video/mp4"/>
+          Your browser does not support the video tag.
+        </video>
+        <div><a href="${videoSrc}" target="_blank" rel="noopener">Open ${name} in new tab</a></div>
+      </div>`;
+    createFloatWindow(name, html);
   }
 
   // ------- Forms (radio inputs clickable) -------
@@ -591,209 +738,415 @@
     createFloatWindow(name, html);
   }
 
-  // ================= End-of-Meeting drawer =================
-  const endBtn = document.getElementById('endBtn'); const eomWrap = document.getElementById('eomWrap'); const eom = document.getElementById('eom'); const eomBody = document.getElementById('eomBody'); const eomClose = document.getElementById('eomClose'); const eomScrim = document.getElementById('eomScrim'); const backBtn = document.getElementById('backBtn'); const nextBtn = document.getElementById('nextBtn'); const eomCounter = document.getElementById('eomCounter'); const s1=document.getElementById('s1'), s2=document.getElementById('s2'), s3=document.getElementById('s3');
-  let step=1;
+  // ================= End-of-Meeting drawer (REVISED) =================
+  const endBtn = document.getElementById('endBtn');
+  const eomWrap = document.getElementById('eomWrap');
+  const eom = document.getElementById('eom');
+  const eomBody = document.getElementById('eomBody');
+  const eomClose = document.getElementById('eomClose');
+  const eomScrim = document.getElementById('eomScrim');
+  const submitEndBtn = document.getElementById('submitEndBtn');
+  const eomTabs = document.getElementById('eomTabs');
+  const eomNextBtn = document.getElementById('eomNextBtn');
+
   const attendees = [ {id:'c1', name:'Vladimir', role:'Prospect', selected:true, journeys:[]} ];
   let meetingStatus = MEETING_STATUSES[0]; // default Attended
+  let eomTab = 'summary';
 
-  // Selected Smart Tasks (tag-style select state)
+  // editors + lists state
+  let summaryHTML = '';
+  let nextStepsHTML = '';
+  let decisions = [];
+  let questions = [];
+  let issues = [];
+  let recordings = [];     // filenames only (mock)
+  let attachments = [];    // filenames only (mock)
+
+  // Selected Smart Tasks / custom recipes reused from earlier code
   let selectedSmartTasks = [];
-
-  // recipes holds only custom tasks (inline add)
   const recipes = { custom:[] };
-
-  // Hold refs for tag-style controls so we can sync before navigation
   let bulkMS = null, smartMS = null, fieldsMS = null;
 
-  function openEOM(){ eomWrap.classList.add('open'); setTimeout(()=> eom.classList.add('open'), 0); step=1; renderStep(); }
+  const EXISTING_JOURNEY_INFO = {
+    "1-1 Request Journey": [
+      {name:"Phase 1: Information Review", status:"Started"},
+      {name:"Phase 2: Automated Outreach", status:"Not Begun"},
+      {name:"Phase 3: Manual Follow-Up", status:"Not Begun"},
+      {name:"Phase 4: No Response or Booking", status:"Not Begun"},
+      {name:"Phase 5: Positive Response", status:"Not Begun"},
+      {name:"Phase 6: Negative Response", status:"Not Begun"},
+      {name:"Phase 7: Booking Scheduled", status:"Not Begun"},
+      {name:"Phase 8: Lost User", status:"Not Begun"}
+    ],
+    "Met at an Event": [
+      {name:"Phase 1: Capture & Tag Contact", status:"Started"},
+      {name:"Phase 2: First Touch", status:"Not Begun"},
+      {name:"Phase 3: Share Resources", status:"Not Begun"},
+      {name:"Phase 4: Invite to Meeting", status:"Not Begun"},
+      {name:"Phase 5: Nurture", status:"Not Begun"},
+      {name:"Phase 6: Evaluate Interest", status:"Not Begun"},
+      {name:"Phase 7: Book or Refer", status:"Not Begun"},
+      {name:"Phase 8: Archive If Cold", status:"Not Begun"}
+    ]
+  };
+
+  function setActiveEomTab(name){
+    eomTabs.querySelectorAll('.tab').forEach(x=>{
+      x.classList.toggle('active', x.dataset.tab===name);
+    });
+    eomTab = name;
+    renderEOM();
+    updateEomFooter();
+  }
+  function updateEomFooter(){
+    const nextBtn = document.getElementById('eomNextBtn');
+    const submitBtn = document.getElementById('submitEndBtn');
+    if(eomTab==='summary'){ nextBtn.style.display='inline-block'; submitBtn.style.display='none'; }
+    else { nextBtn.style.display='none'; submitBtn.style.display='inline-block'; }
+  }
+
+  function openEOM(){ eomWrap.classList.add('open'); setTimeout(()=> eom.classList.add('open'), 0); eomTab='summary'; renderEOM(); updateEomFooter(); }
   function closeEOM(){ eom.classList.remove('open'); setTimeout(()=> eomWrap.classList.remove('open'), 200); }
-  endBtn.addEventListener('click', openEOM); eomClose.addEventListener('click', closeEOM); eomScrim.addEventListener('click', closeEOM);
+  endBtn.addEventListener('click', openEOM);
+  eomClose.addEventListener('click', closeEOM);
+  eomScrim.addEventListener('click', closeEOM);
 
-  // Back/Next: ALWAYS Attendees -> Journeys -> Review; queue only on Review "Run"
-  backBtn.addEventListener('click', ()=>{
-    if(step===2){ // leaving Journeys backward? keep selections
-      if(bulkMS && smartMS){ attendees[0].journeys = bulkMS.getSelected(); selectedSmartTasks = smartMS.getSelected(); }
-    }
-    if(step>1){ step--; renderStep(); }
+  // Tabs inside drawer
+  eomTabs.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click', ()=> setActiveEomTab(t.dataset.tab));
   });
 
-  nextBtn.addEventListener('click', ()=>{
-    if(step===1){
-      step = 2; renderStep(); return;
-    }
-    if(step===2){
-      if(bulkMS && smartMS){ attendees[0].journeys = bulkMS.getSelected(); selectedSmartTasks = smartMS.getSelected(); }
-      step = 3; renderStep(); return; // go to Review, do not queue yet
-    }
-    if(step===3){
-      runSmartTasks(); // queue only here
-    }
+  // Next button -> switch to Automation and save current inputs
+  eomNextBtn.addEventListener('click', ()=>{
+    const sumArea = document.querySelector('#sumEd .rte-area');
+    const nextArea = document.querySelector('#nextEd .rte-area');
+    if(sumArea) summaryHTML = sumArea.innerHTML.trim();
+    if(nextArea) nextStepsHTML = nextArea.innerHTML.trim();
+    if(bulkMS) attendees[0].journeys = bulkMS.getSelected();
+    if(smartMS) selectedSmartTasks = smartMS.getSelected();
+    setActiveEomTab('automation');
   });
 
-  // Make step labels clickable
-  [s1,s2,s3].forEach(node=>{
-    node.addEventListener('click', ()=>{ step = parseInt(node.dataset.step,10); renderStep(); });
-  });
-
-  function renderStep(){
-    s1.classList.toggle('active', step===1); s2.classList.toggle('active', step===2); s3.classList.toggle('active', step===3);
-    if(step===1){ renderStep1(); nextBtn.textContent='Next'; }
-    if(step===2){ renderStep2(); nextBtn.textContent='Next'; }
-    if(step===3){ renderStep3(); nextBtn.textContent='Run Smart Tasks'; }
-    updateCounter();
+  function editorHTML(id, placeholder){
+    return `
+      <div class="rte" id="${id}">
+        <div class="rte-toolbar">
+          <button type="button" class="btn" data-cmd="bold">B</button>
+          <button type="button" class="btn" data-cmd="italic"><em>I</em></button>
+          <button type="button" class="btn" data-cmd="insertUnorderedList">• List</button>
+          <button type="button" class="btn" data-cmd="formatBlock" data-val="h1">H1</button>
+          <button type="button" class="btn" data-cmd="formatBlock" data-val="h2">H2</button>
+        </div>
+        <div class="rte-area" contenteditable="true" data-placeholder="${placeholder}"></div>
+      </div>`;
+  }
+  function wireEditor(rootId, initialHTML=''){
+    const root = document.getElementById(rootId);
+    const area = root.querySelector('.rte-area');
+    area.innerHTML = initialHTML || '';
+    root.querySelectorAll('.rte-toolbar .btn').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const cmd = b.dataset.cmd;
+        const val = b.dataset.val || null;
+        if(cmd==='formatBlock'){ document.execCommand(cmd,false,val); }
+        else { document.execCommand(cmd,false,null); }
+      });
+    });
+    return { getHTML: ()=> area.innerHTML.trim() };
   }
 
-  function renderStep1(){ eomBody.innerHTML = `
-      <p class="muted">Set meeting status.</p>
-      <table class="table"><thead><tr><th>Contact</th><th>Meeting Status</th></tr></thead><tbody id="attBody"></tbody></table>`;
-    const tbody = document.getElementById('attBody');
-    const a = attendees[0];
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:#ecf2ff"></div><div><div style="font-weight:700">${a.name}</div><div class=\"muted\" style=\"font-size:12px\">${a.role}</div></div></div></td>
-      <td><div id="statusChips" style="display:flex;gap:6px;flex-wrap:wrap"></div></td>`;
-    tbody.appendChild(tr);
-    const chips = document.getElementById('statusChips');
-    MEETING_STATUSES.forEach(st=>{ const chip=document.createElement('span'); chip.className='chip'+(st===meetingStatus?' selected':''); chip.textContent=st; chip.addEventListener('click', ()=>{ meetingStatus=st; renderStep1(); }); chips.appendChild(chip); });
+  function listAdderHTML(key, title, placeholder){
+    return `
+      <div class="field list-add">
+        <label>${title}</label>
+        <input id="${key}Input" class="input" placeholder="${placeholder}" />
+        <ul id="${key}List" class="list-items"></ul>
+      </div>`;
+  }
+  function wireListAdder(key, store){
+    const input = document.getElementById(`${key}Input`);
+    const list = document.getElementById(`${key}List`);
+    function render(){
+      list.innerHTML = store.map((t,i)=>`<li>${t}<span data-i="${i}" class="rm">×</span></li>`).join('');
+      list.querySelectorAll('.rm').forEach(x=> x.addEventListener('click', ()=>{ store.splice(parseInt(x.dataset.i),1); render(); }));
+    }
+    input.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){
+        const v = (input.value||'').trim();
+        if(v){ store.push(v); input.value=''; render(); }
+      }
+    });
+    render();
   }
 
-  function renderStep2(){ 
-    // Journeys (tag style) + Smart Tasks (tag style) + inline task creator (extended with placeholders and contact fields tag-select)
-    eomBody.innerHTML = `
-      <div class="field">
-        <label>Bulk Journey</label>
-        <div id="bulkMS" class="ms" data-placeholder="Pick journey(s)"></div>
-      </div>
-      <div class="field">
-        <label>Smart Tasks</label>
-        <div id="smartMS" class="ms" data-placeholder="Pick task(s)"></div>
-      </div>
-      <h4 style="margin-top:6px">Custom Tasks</h4>
-      <div id="recipes"></div>
-      <div style="margin-top:8px"><a href="#" id="addTaskLink" class="attach-link">Add a Task</a></div>
-      <div id="inlineTask" style="display:none;margin-top:10px;border-top:1px solid #eef2f7;padding-top:10px">
-        <div class="field"><label>Task Name</label><input id="itName" class="input" placeholder="e.g., Send welcome email"></div>
-        <div class="row">
-          <div class="field"><label>Task Type</label>
-            <select id="itType">
-              <option value="" selected disabled>Select Task Type</option>
-              <option value="User">User</option>
-              <option value="Contact">Contact</option>
-            </select>
+  function journeyPreviewHTML(name){
+    const phases = (EXISTING_JOURNEY_INFO[name]||[]);
+    return `
+      <div class="journey-preview" id="jp">
+        ${phases.map((p,idx)=>`
+          <div class="phase">
+            <div class="phase-h">
+              <div>${p.name}</div>
+              <div class="status">Status: ${p.status} <span style="margin-left:8px">▾</span></div>
+            </div>
+            <div class="phase-b">Details about ${p.name} will appear here.</div>
           </div>
-          <div class="field"><label>Action</label>
-            <select id="itAction">
-              <option value="" selected disabled>Select Action</option>
-              <option value="Send Email">Send Email</option>
-              <option value="Send Text">Send Text</option>
-              <option value="Fill in Contact Fields">Fill in Contact Fields</option>
-            </select>
+        `).join('')}
+      </div>`;
+  }
+  function wireJourneyPreview(container){
+    container.querySelectorAll('.phase').forEach(ph=>{
+      const h = ph.querySelector('.phase-h');
+      h.addEventListener('click', ()=> ph.classList.toggle('open'));
+    });
+  }
+
+  function renderEOM(){
+    if(eomTab==='summary'){
+      eomBody.innerHTML = `
+        <div class="field"><label>Set meeting status.</label>
+          <div id="statusChips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        </div>
+<br>
+        <div class="field"><label style="font-size:18px">Summary/Takeways</label>
+          ${editorHTML('sumEd','Summary/Takeways')}
+        </div>
+<br>
+        <div class="field"><label style="font-size:18px">Next Steps</label>
+          ${editorHTML('nextEd','Next Steps')}
+        </div>
+<br>
+        ${listAdderHTML('dec','Decisions Made','Type a decision and press Enter')}
+<br>
+        ${listAdderHTML('uq','Unanswered Questions','Type a question and press Enter')}
+<br>
+        ${listAdderHTML('iss','Issues Identified','Type an issue and press Enter')}
+<br>
+        <div class="field"><label>Recording</label>
+          <label class="upload-box" for="recUpload">Drop files here or click to upload<input id="recUpload" type="file" multiple></label>
+          <div id="recFiles" class="muted" style="margin-top:6px"></div>
+        </div>
+<br>
+        <div class="field"><label>Links & Attachments</label>
+          <label class="upload-box" for="attUpload">Drop files here or click to upload<input id="attUpload" type="file" multiple></label>
+          <div id="attFiles" class="muted" style="margin-top:6px"></div>
+        </div>
+<br>
+        <div class="field">
+          <label>Existing Journeys</label>
+          <div class="journey-pills" id="journeyPills">
+            <span class="journey-pill" data-j="1-1 Request Journey">1-1 Request Journey</span>
+            <span class="journey-pill" data-j="Met at an Event">Met at an Event</span>
+          </div>
+          <div id="journeyInfo"></div>
+        </div>
+<br>
+        <div class="field">
+          <label>Bulk Journey</label>
+          <div id="bulkMS" class="ms" data-placeholder="Pick journey(s)"></div>
+        </div>
+        <div class="field">
+<br>
+          <label>Smart Tasks</label>
+          <div id="smartMS" class="ms" data-placeholder="Pick task(s)"></div>
+        </div>
+<br>
+        <h4 style="margin-top:6px">Custom Tasks</h4>
+        <div id="recipes"></div>
+        <div style="margin-top:8px"><a href="#" id="addTaskLink" class="attach-link">Add a Task</a></div>
+        <div id="inlineTask" style="display:none;margin-top:10px;border-top:1px solid #eef2f7;padding-top:10px">
+          <div class="field"><label>Task Name</label><input id="itName" class="input" placeholder="e.g., Send welcome email"></div>
+          <div class="row">
+            <div class="field"><label>Task Type</label>
+              <select id="itType">
+                <option value="" selected disabled>Select Task Type</option>
+                <option value="User">User</option>
+                <option value="Contact">Contact</option>
+              </select>
+            </div>
+            <div class="field"><label>Action</label>
+              <select id="itAction">
+                <option value="" selected disabled>Select Action</option>
+                <option value="Send Email">Send Email</option>
+                <option value="Send Text">Send Text</option>
+                <option value="Fill in Contact Fields">Fill in Contact Fields</option>
+              </select>
+            </div>
+          </div>
+          <div id="actionExtras"></div>
+          <div class="field"><label>Short Description</label><input id="itShort" class="input" placeholder="Short description"></div>
+          <div class="field"><label>Long Description</label><textarea id="itLong" class="input" placeholder="Details..."></textarea></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn" id="itCancel">Cancel</button>
+            <button class="btn primary" id="itAdd">Add Task</button>
           </div>
         </div>
-        <div id="actionExtras"></div>
-        <div class="field"><label>Short Description</label><input id="itShort" class="input" placeholder="Short description"></div>
-        <div class="field"><label>Long Description</label><textarea id="itLong" class="input" placeholder="Details..."></textarea></div>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn" id="itCancel">Cancel</button>
-          <button class="btn primary" id="itAdd">Add Task</button>
+      `;
+
+      // Status chips
+      const chips = document.getElementById('statusChips');
+      MEETING_STATUSES.forEach(st=>{
+        const span = document.createElement('span');
+        span.className = 'chip'+(st===meetingStatus?' selected':'');
+        span.textContent = st;
+        span.addEventListener('click', ()=>{ meetingStatus = st; renderEOM(); });
+        chips.appendChild(span);
+      });
+
+      // editors
+      const sumEd = wireEditor('sumEd', summaryHTML);
+      const nextEd = wireEditor('nextEd', nextStepsHTML);
+
+      // list adders
+      wireListAdder('dec', decisions);
+      wireListAdder('uq', questions);
+      wireListAdder('iss', issues);
+
+      // uploads
+      const recUp = document.getElementById('recUpload');
+      const attUp = document.getElementById('attUpload');
+      const recFiles = document.getElementById('recFiles');
+      const attFiles = document.getElementById('attFiles');
+      function renderFiles(){
+        recFiles.textContent = recordings.length ? recordings.join(', ') : 'No files added';
+        attFiles.textContent = attachments.length ? attachments.join(', ') : 'No files added';
+      }
+      function bindUpload(input, store, cb){
+        input.addEventListener('change', ()=>{ Array.from(input.files||[]).forEach(f=>store.push(f.name)); input.value=''; cb(); });
+        const box = input.closest('.upload-box');
+        box.addEventListener('dragover', e=>{ e.preventDefault(); box.style.background='#f1f7ff'; });
+        box.addEventListener('dragleave', ()=>{ box.style.background=''; });
+        box.addEventListener('drop', e=>{ e.preventDefault(); box.style.background=''; Array.from(e.dataTransfer.files||[]).forEach(f=>store.push(f.name)); cb(); });
+      }
+      bindUpload(recUp, recordings, renderFiles);
+      bindUpload(attUp, attachments, renderFiles);
+      renderFiles();
+
+      // Existing Journeys preview
+      const jpills = document.getElementById('journeyPills');
+      const jinfo = document.getElementById('journeyInfo');
+      jpills.querySelectorAll('.journey-pill').forEach(p=>{
+        p.addEventListener('click', ()=>{
+          jpills.querySelectorAll('.journey-pill').forEach(x=>x.classList.remove('active'));
+          p.classList.add('active');
+          jinfo.innerHTML = journeyPreviewHTML(p.dataset.j);
+          wireJourneyPreview(jinfo);
+        });
+      });
+
+      // Tag-style controls
+      bulkMS = createTagMultiSelect(document.getElementById('bulkMS'), JOURNEYS, new Set(attendees[0].journeys));
+      smartMS = createTagMultiSelect(document.getElementById('smartMS'), SMART_TASK_OPTIONS, new Set(selectedSmartTasks));
+
+      // Render existing custom tasks
+      const recWrap = document.getElementById('recipes'); recWrap.innerHTML='';
+      recipes.custom.forEach((t,i)=> recWrap.appendChild(customToggle(t,i)) );
+
+      // Inline custom task adder
+      const addTaskLink = document.getElementById('addTaskLink');
+      const inlineTask = document.getElementById('inlineTask');
+      const actionExtras = document.getElementById('actionExtras');
+      addTaskLink.addEventListener('click', (e)=>{ e.preventDefault(); inlineTask.style.display = inlineTask.style.display==='none' ? 'block' : 'none'; });
+      document.getElementById('itCancel').addEventListener('click', ()=> inlineTask.style.display='none');
+      const itAction = document.getElementById('itAction');
+      function renderActionExtras(){
+        const val = itAction.value;
+        let html = '';
+        if(val==='Send Email'){
+          html = `<div class="field"><label>Select Email</label>
+            <select id="itEmail">
+              <option value="" selected disabled>Select Email</option>
+              <option>General Post-Meeting Thank You Email</option>
+              <option>Post-Meeting Follow-Up Email</option>
+              <option>Missed Meeting Follow-Up Email</option>
+            </select>
+          </div>`;
+          fieldsMS = null;
+        } else if(val==='Send Text'){
+          html = `<div class="field"><label>Select Text</label>
+            <select id="itText">
+              <option value="" selected disabled>Select Text</option>
+              <option>General Post-Meeting Thank You Text</option>
+              <option>Post-Meeting Follow-Up Text</option>
+              <option>Missed Meeting Follow-Up Text</option>
+            </select>
+          </div>`;
+          fieldsMS = null;
+        } else if(val==='Fill in Contact Fields'){
+          html = `<div class="field"><label>Select Contact Fields</label>
+            <div id="itFieldsMS" class="ms" data-placeholder="Select Contact Fields"></div>
+          </div>`;
+        } else {
+          html = '';
+          fieldsMS = null;
+        }
+        actionExtras.innerHTML = html;
+        if(val==='Fill in Contact Fields'){
+          fieldsMS = createTagMultiSelect(document.getElementById('itFieldsMS'), CONTACT_FIELD_OPTIONS, new Set());
+        }
+      }
+      itAction.addEventListener('change', renderActionExtras);
+
+      document.getElementById('itAdd').addEventListener('click', ()=>{
+        const name = (document.getElementById('itName').value||'').trim();
+        const type = document.getElementById('itType').value || '';
+        const action = document.getElementById('itAction').value || '';
+        const shortD = (document.getElementById('itShort').value||'').trim();
+        const longD = (document.getElementById('itLong').value||'').trim();
+        if(!name){ alert('Please enter Task Name.'); return; }
+        if(!type){ alert('Please select Task Type.'); return; }
+        if(!action){ alert('Please select Action.'); return; }
+        let extra = '';
+        if(action==='Send Email'){
+          const emSel = document.getElementById('itEmail'); const em = emSel ? (emSel.value || '') : '';
+          if(!em){ alert('Please select an Email template.'); return; }
+          extra = ` • Template: ${em}`;
+        } else if(action==='Send Text'){
+          const txSel = document.getElementById('itText'); const tx = txSel ? (txSel.value || '') : '';
+          if(!tx){ alert('Please select a Text template.'); return; }
+          extra = ` • Template: ${tx}`;
+        } else if(action==='Fill in Contact Fields'){
+          const fields = fieldsMS ? fieldsMS.getSelected() : [];
+          if(!fields.length){ alert('Please select at least one Contact Field.'); return; }
+          extra = ` • Fields: ${fields.join(', ')}`;
+        }
+        const desc = `[${type}] • ${action}${extra}${shortD?(' • '+shortD):''}${longD?(' — '+longD):''}`;
+        recipes.custom.push({title:name, desc, enabled:true});
+        renderEOM(); // re-render to show new row
+      });
+
+      // Save editors on input
+      const saveEditors = ()=>{ summaryHTML = sumEd.getHTML(); nextStepsHTML = nextEd.getHTML(); };
+      eomBody.addEventListener('input', (e)=>{ if(e.target.closest('#sumEd')||e.target.closest('#nextEd')) saveEditors(); });
+      eomBody.addEventListener('blur', saveEditors, true);
+
+    } else {
+      // AUTOMATION preview
+      const journeys = (attendees[0].journeys||[]).join(', ') || 'None';
+      const enabledTasks = [...selectedSmartTasks];
+      recipes.custom.forEach(t=>{ if(t.enabled) enabledTasks.push(`Custom: ${t.title}`); });
+
+      eomBody.innerHTML = `
+        <div class="card" style="border:1px solid #eef2f7;border-radius:12px;padding:12px">
+          <h4 style="margin:6px 0 8px">Automation Preview</h4>
+          <div class="fus-row"><div class="muted">Contact</div><div>Vladimir</div></div>
+          <div class="fus-row"><div class="muted">Meeting Status</div><div><span class="chip selected">${meetingStatus}</span></div></div>
+          <div class="fus-row"><div class="muted">Journeys</div><div>${journeys}</div></div>
+          <div class="fus-row"><div class="muted">Smart & Custom Tasks</div><div>${enabledTasks.length?('<ul class="fus-list">'+enabledTasks.map(t=>`<li>${t}</li>`).join('')+'</ul>'):'None'}</div></div>
+          <hr style="border:none;border-top:1px solid #eef2f7;margin:10px 0">
+          <div class="fus-row"><div class="muted">Summary/Takeways</div><div>${summaryHTML || '<span class="muted">—</span>'}</div></div>
+          <div class="fus-row"><div class="muted">Next Steps</div><div>${nextStepsHTML || '<span class="muted">—</span>'}</div></div>
+          <div class="fus-row"><div class="muted">Decisions</div><div>${decisions.length?('<ul class="fus-list">'+decisions.map(x=>`<li>${x}</li>`).join('')+'</ul>'):'—'}</div></div>
+          <div class="fus-row"><div class="muted">Unanswered Qs</div><div>${questions.length?('<ul class="fus-list">'+questions.map(x=>`<li>${x}</li>`).join('')+'</ul>'):'—'}</div></div>
+          <div class="fus-row"><div class="muted">Issues</div><div>${issues.length?('<ul class="fus-list">'+issues.map(x=>`<li>${x}</li>`).join('')+'</ul>'):'—'}</div></div>
+          <div class="fus-row"><div class="muted">Recording</div><div>${recordings.length? recordings.join(', ') : '—'}</div></div>
+          <div class="fus-row"><div class="muted">Links & Attachments</div><div>${attachments.length? attachments.join(', ') : '—'}</div></div>
         </div>
-      </div>
-    `;
-
-    // Tag-style controls (no checkboxes)
-    bulkMS = createTagMultiSelect(document.getElementById('bulkMS'), JOURNEYS, new Set(attendees[0].journeys));
-    smartMS = createTagMultiSelect(document.getElementById('smartMS'), SMART_TASK_OPTIONS, new Set(selectedSmartTasks));
-
-    // Render current custom tasks list
-    const rec = document.getElementById('recipes'); rec.innerHTML = '';
-    recipes.custom.forEach((t, i)=> rec.appendChild(customToggle(t, i)) );
-
-    // "Add Task" – same behavior, with placeholders & conditional multi-select for contact fields
-    const addTaskLink = document.getElementById('addTaskLink');
-    const inlineTask = document.getElementById('inlineTask');
-    const actionExtras = document.getElementById('actionExtras');
-
-    addTaskLink.addEventListener('click', (e)=>{
-      e.preventDefault();
-      inlineTask.style.display = inlineTask.style.display==='none' ? 'block' : 'none';
-    });
-    document.getElementById('itCancel').addEventListener('click', ()=>{
-      inlineTask.style.display='none';
-    });
-
-    const itAction = document.getElementById('itAction');
-    function renderActionExtras(){
-      const val = itAction.value;
-      let html = '';
-      if(val==='Send Email'){
-        html = `<div class="field"><label>Select Email</label>
-          <select id="itEmail">
-            <option value="" selected disabled>Select Email</option>
-            <option>General Post-Meeting Thank You Email</option>
-            <option>Post-Meeting Follow-Up Email</option>
-            <option>Missed Meeting Follow-Up Email</option>
-          </select>
-        </div>`;
-        actionExtras.innerHTML = html;
-        fieldsMS = null;
-      } else if(val==='Send Text'){
-        html = `<div class="field"><label>Select Text</label>
-          <select id="itText">
-            <option value="" selected disabled>Select Text</option>
-            <option>General Post-Meeting Thank You Text</option>
-            <option>Post-Meeting Follow-Up Text</option>
-            <option>Missed Meeting Follow-Up Text</option>
-          </select>
-        </div>`;
-        actionExtras.innerHTML = html;
-        fieldsMS = null;
-      } else if(val==='Fill in Contact Fields'){
-        html = `<div class="field"><label>Select Contact Fields</label>
-          <div id="itFieldsMS" class="ms" data-placeholder="Select Contact Fields"></div>
-        </div>`;
-        actionExtras.innerHTML = html;
-        fieldsMS = createTagMultiSelect(document.getElementById('itFieldsMS'), CONTACT_FIELD_OPTIONS, new Set());
-      } else {
-        actionExtras.innerHTML = '';
-        fieldsMS = null;
-      }
+      `;
     }
-    itAction.addEventListener('change', renderActionExtras);
-    // start with nothing selected; no extras shown
-
-    document.getElementById('itAdd').addEventListener('click', ()=>{
-      const name = (document.getElementById('itName').value||'').trim();
-      const type = document.getElementById('itType').value || '';
-      const action = document.getElementById('itAction').value || '';
-      const shortD = (document.getElementById('itShort').value||'').trim();
-      const longD = (document.getElementById('itLong').value||'').trim();
-      if(!name){ alert('Please enter Task Name.'); return; }
-      if(!type){ alert('Please select Task Type.'); return; }
-      if(!action){ alert('Please select Action.'); return; }
-
-      let extra = '';
-      if(action==='Send Email'){
-        const emSel = document.getElementById('itEmail');
-        const em = emSel ? (emSel.value || '') : '';
-        if(!em){ alert('Please select an Email template.'); return; }
-        extra = ` • Template: ${em}`;
-      } else if(action==='Send Text'){
-        const txSel = document.getElementById('itText');
-        const tx = txSel ? (txSel.value || '') : '';
-        if(!tx){ alert('Please select a Text template.'); return; }
-        extra = ` • Template: ${tx}`;
-      } else if(action==='Fill in Contact Fields'){
-        const fields = fieldsMS ? fieldsMS.getSelected() : [];
-        if(!fields.length){ alert('Please select at least one Contact Field.'); return; }
-        extra = ` • Fields: ${fields.join(', ')}`;
-      }
-
-      const desc = `[${type}] • ${action}${extra}${shortD?(' • '+shortD):''}${longD?(' — '+longD):''}`;
-      recipes.custom.push({title:name, desc, enabled:true});
-      renderStep2(); // re-render to show the new custom task and reset form
-    });
   }
 
+  // render custom toggle row
   function customToggle(task, idx){
     const row=document.createElement('div');
     row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eef2f7';
@@ -803,83 +1156,70 @@
     return row;
   }
 
-  function renderStep3(){
-    const journeys = attendees[0].journeys && attendees[0].journeys.length ? attendees[0].journeys.join(', ') : 'None';
-    const enabledTasks = [...selectedSmartTasks];
-    recipes.custom.forEach(t=>{ if(t.enabled) enabledTasks.push(t.title); });
-
-    eomBody.innerHTML = `
-      <div class="card" style="border:1px solid #eef2f7;border-radius:12px;padding:12px">
-        <h4 style="margin:6px 0 8px">Summary</h4>
-        <div style="display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:start">
-          <div class="muted">Contact</div><div>Vladimir</div>
-          <div class="muted">Meeting Status</div><div><span class="chip selected">${meetingStatus}</span></div>
-          <div class="muted">Journeys</div><div>${journeys}</div>
-          <div class="muted">Smart Tasks</div><div>${enabledTasks.length?('<ul>'+enabledTasks.map(t=>`<li>${t}</li>`).join('')+'</ul>'):'None'}</div>
-        </div>
-      </div>`;
-  }
-
   function updateCounter(){
     const rc = selectedSmartTasks.length + (recipes.custom.filter(t=>t.enabled).length);
-    eomCounter.textContent = `1 selected • ${rc} task${rc===1?'':'s'}`;
+    const ctr = document.getElementById('eomCounter'); // may not exist now
+    if(ctr){ ctr.textContent = `1 selected • ${rc} task${rc===1?'':'s'}`; }
   }
 
   // --- NEW: Follow-Up Summary rendering & controls ---
   const followUpCard = document.getElementById('followUpCard');
   function renderFollowUpSummary(){
-    // Fill header
     document.getElementById('fuContact').textContent = attendees[0].name || 'Contact';
     document.getElementById('fuStatus').textContent = meetingStatus;
 
-    // Journeys tags
-    const jWrap = document.getElementById('fuJourneys');
-    jWrap.innerHTML = '';
-    const jList = (attendees[0].journeys && attendees[0].journeys.length) ? attendees[0].journeys : ['None'];
-    jList.forEach(j=>{
-      const span = document.createElement('span');
-      span.className = 'pill';
-      span.textContent = j;
-      jWrap.appendChild(span);
-    });
-
-    // Tasks list (selected smart tasks + enabled custom tasks)
-    const tWrap = document.getElementById('fuTasks');
-    tWrap.innerHTML = '';
-    const tasks = [...selectedSmartTasks];
-    recipes.custom.forEach(t=>{ if(t.enabled) tasks.push(`Custom: ${t.title}`); });
-    if(tasks.length===0){
-      const li = document.createElement('li'); li.textContent = 'None';
-      tWrap.appendChild(li);
-    } else {
-      tasks.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; tWrap.appendChild(li); });
+    const body = followUpCard.querySelector('.fus-body');
+    function ensureSection(id, title){
+      let sec = document.getElementById(id);
+      if(!sec){
+        sec = document.createElement('div');
+        sec.className = 'fus-section';
+        sec.id = id;
+        sec.innerHTML = `<h4>${title}</h4><div class="content"></div>`;
+        body.appendChild(sec);
+      }
+      return sec.querySelector('.content');
     }
+    const sumC = ensureSection('fusSum','Summary/Takeways'); sumC.innerHTML = summaryHTML || '<span class="muted">—</span>';
+    const nextC = ensureSection('fusNext','Next Steps'); nextC.innerHTML = nextStepsHTML || '<span class="muted">—</span>';
+    const decC = ensureSection('fusDec','Decisions Made'); decC.innerHTML = decisions.length?('<ul class="fus-list">'+decisions.map(x=>`<li>${x}</li>`).join('')+'</ul>'):'—';
+    const qC = ensureSection('fusQ','Unanswered Questions'); qC.innerHTML = questions.length?('<ul class="fus-list">'+questions.map(x=>`<li>${x}</li>`).join('')+'</ul>'):'—';
+    const issC = ensureSection('fusIss','Issues Identified'); issC.innerHTML = issues.length?('<ul class="fus-list">'+issues.map(x=>`<li>${x}</li>`).join('')+'</ul>'):'—';
+    const recC = ensureSection('fusRec','Recording'); recC.textContent = recordings.length? recordings.join(', ') : '—';
+    const attC = ensureSection('fusAtt','Links & Attachments'); attC.textContent = attachments.length? attachments.join(', ') : '—';
 
-    // Queued time and applies to
+    const jWrap = document.getElementById('fuJourneys'); jWrap.innerHTML = '';
+    const jList = (attendees[0].journeys && attendees[0].journeys.length) ? attendees[0].journeys : ['None'];
+    jList.forEach(j=>{ const span = document.createElement('span'); span.className = 'pill'; span.textContent = j; jWrap.appendChild(span); });
+
+    const tWrap = document.getElementById('fuTasks'); tWrap.innerHTML = '';
+    const tasks = [...selectedSmartTasks]; recipes.custom.forEach(t=>{ if(t.enabled) tasks.push(`Custom: ${t.title}`); });
+    if(tasks.length===0){ const li = document.createElement('li'); li.textContent = 'None'; tWrap.appendChild(li); }
+    else { tasks.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; tWrap.appendChild(li); }); }
+
     document.getElementById('fuQueuedTime').textContent = 'Just now';
     document.getElementById('fuApplies').textContent = attendees[0].name || 'Contact';
   }
 
   function showPostMeetingUI(){
-    // Disable End Meeting button
     endBtn.classList.add('disabled');
     endBtn.setAttribute('disabled', 'true');
-    // Show and render the summary card
+    document.getElementById('followUpHead').style.display = 'flex';
     followUpCard.style.display = 'block';
     renderFollowUpSummary();
   }
-  // --- END: Follow-Up Summary additions ---
 
   function runSmartTasks(){
+    if(bulkMS){ attendees[0].journeys = bulkMS.getSelected(); }
+    if(smartMS){ selectedSmartTasks = smartMS.getSelected(); }
+
     const payload = { meeting_id:'mtg_demo', meeting_status: meetingStatus, recipes: [] };
     const contactId = attendees[0].id;
 
-    // Assign to chosen journeys if any were selected
     if(attendees[0].journeys && attendees[0].journeys.length){
       payload.recipes.push({ type:'assign_to_journeys', contacts: [{ contact_id: contactId, journeys: attendees[0].journeys }] });
     }
 
-    // Map selected smart tasks to payload actions
     selectedSmartTasks.forEach(t=>{
       if(t==='Modify Contact Details'){
         payload.recipes.push({ type:'modify_contact_details', contacts:[contactId], attributes:{} });
@@ -892,19 +1232,267 @@
       }
     });
 
-    // Include enabled custom tasks
-    recipes.custom.forEach(t=>{ if(t.enabled) payload.recipes.push({ type:'custom_task', title:t.title, description:t.desc||'' }); });
+    payload.summary = {
+      meeting_status: meetingStatus,
+      summary_html: summaryHTML,
+      next_steps_html: nextStepsHTML,
+      decisions, questions, issues,
+      recordings, attachments
+    };
 
     console.log('SMART TASKS PAYLOAD', payload);
 
-    // Update main page UI with Follow-Up Summary
     showPostMeetingUI();
-
     closeEOM();
-    alert('Smart Tasks queued!');
+    alert('Smart Tasks queued and meeting ended!');
   }
 
-  // Open EOM handler remains
+  submitEndBtn.addEventListener('click', runSmartTasks);
+
+  /* ===== Attendee Tasks logic (scoped) ===== */
+  const tasks = {
+    pre: [
+      { id: 'p1', title: 'Fill Out Form', type: 'Contact', action: 'Fill Out Form', resource: 'Segwik Initial Walkthrough Form', status: 'Assigned' },
+      { id: 'p2', title: 'Watch Video', type: 'Contact', action: 'Watch Video', resource: 'Segwik App Intro Video', status: 'Assigned' }
+    ],
+    post: [
+      { id: 'q1', title: 'Fill Out Form', type: 'Contact', action: 'Fill Out Form', resource: 'Post-Meeting Feedback Form', status: 'Assigned' }
+    ]
+  };
+  const STATUS_OPTS = ['Started','Assigned','Completed','Queued','Cancelled','Paused'];
+  const preList = document.getElementById('preList');
+  const postList = document.getElementById('postList');
+
+  // Tabs for Attendee Tasks only
+  document.querySelectorAll('#attTabs .tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('#attTabs .tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+    const isPre = t.dataset.tab==='pre';
+    document.getElementById('prePanel').style.display = isPre?'block':'none';
+    document.getElementById('postPanel').style.display = isPre?'none':'block';
+  }));
+
+  function renderAttendeeTasks(){
+    preList.innerHTML = '';
+    postList.innerHTML = '';
+    tasks.pre.forEach(t => preList.appendChild(taskRow(t, 'pre')));
+    tasks.post.forEach(t => postList.appendChild(taskRow(t, 'post')));
+  }
+
+  function taskRow(t, bucket){
+    const row = document.createElement('div');
+    row.className = 'task-item';
+
+    const left = document.createElement('div');
+    left.innerHTML = `<div class="task-title">${t.title}</div>` +
+      `<div class="task-meta">`+
+      (t.action==='Fill Out Form' ? `Form: <strong>${t.resource||''}</strong>` :
+       t.action==='Watch Video' ? `Video: <strong>${t.resource||''}</strong>` :
+       t.action==='Read Article' ? `Article: <strong>${t.resource||''}</strong>` :
+       `Action: <strong>${t.action}</strong>`) +
+      `</div>`;
+
+    const right = document.createElement('div');
+    right.className = 'task-actions';
+
+    const openBtn = document.createElement('button');
+    openBtn.className = 'btn';
+    openBtn.textContent = t.action==='Fill Out Form' ? 'Open Form' : (t.action==='Watch Video' ? 'Open Video' : 'Open');
+    openBtn.addEventListener('click', ()=>{
+      if(t.action === 'Fill Out Form'){
+        openFormWindow(t.resource || t.title);
+      } else if(t.action === 'Watch Video'){
+        openVideoWindow(t.resource || t.title);
+      } else {
+        alert(`${openBtn.textContent}: ${t.resource||t.title}`);
+      }
+    });
+
+    const statusChip = document.createElement('span');
+    statusChip.className = 'chip';
+    statusChip.textContent = t.status || 'Assigned';
+
+    const menu = document.createElement('div');
+    menu.className = 'menu';
+    const kebab = document.createElement('button');
+    kebab.className = 'kebab';
+    kebab.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>';
+    const fly = document.createElement('div');
+    fly.className = 'menu-flyout';
+
+    STATUS_OPTS.forEach(st => {
+      const mi = document.createElement('div');
+      mi.className = 'menu-item';
+      mi.innerHTML = `<span>${st === 'Assigned' ? 'Assign Task' : st === 'Started' ? 'Start Task' : st}</span>`;
+      mi.addEventListener('click', ()=>{ t.status = st; statusChip.textContent = st; menu.classList.remove('open'); });
+      fly.appendChild(mi);
+    });
+
+    const sep = document.createElement('div'); sep.style.cssText='height:1px;background:#f2f5fa;margin:4px 0'; fly.appendChild(sep);
+
+    const del = document.createElement('div');
+    del.className = 'menu-item';
+    del.innerHTML = '<span>Remove Task</span>';
+    del.addEventListener('click', ()=> openRemove(()=>{
+      const list = tasks[bucket];
+      const idx = list.findIndex(x=>x.id===t.id);
+      if(idx>-1){ list.splice(idx,1); renderAttendeeTasks(); }
+    }));
+    fly.appendChild(del);
+
+    menu.appendChild(kebab); menu.appendChild(fly);
+    kebab.addEventListener('click', (e)=>{ e.stopPropagation(); menu.classList.toggle('open'); });
+    document.addEventListener('click', ()=> menu.classList.remove('open'));
+
+    right.appendChild(openBtn);
+    right.appendChild(statusChip);
+    right.appendChild(menu);
+
+    row.appendChild(left);
+    row.appendChild(right);
+    return row;
+  }
+
+  // Add Task modal logic
+  const taskModal = document.getElementById('taskModal');
+  const taskClose = document.getElementById('taskClose');
+  const taskCancel = document.getElementById('taskCancel');
+  const taskSave = document.getElementById('taskSave');
+  const tAction = document.getElementById('tAction');
+  const tExtras = document.getElementById('tExtras');
+  let fieldsMS_Att = null; // tag-style multi-select instance for contact fields
+
+  function openTaskModal(){ taskModal.classList.add('open'); renderExtras(); }
+  function closeTaskModal(){ taskModal.classList.remove('open'); clearTaskForm(); }
+
+  document.getElementById('addTaskBtn').addEventListener('click', openTaskModal);
+  taskClose.addEventListener('click', closeTaskModal);
+  taskCancel.addEventListener('click', closeTaskModal);
+
+  tAction.addEventListener('change', renderExtras);
+
+  function renderExtras(){
+    const val = tAction.value;
+    let html = '';
+    fieldsMS_Att = null;
+
+    if(val==='Send Email'){
+      html = `<div class="field"><label>Select Email</label>
+        <select id="tEmail">
+          <option value="" selected disabled>Select Email</option>
+          <option>General Post-Meeting Thank You Email</option>
+          <option>Post-Meeting Follow-Up Email</option>
+          <option>Missed Meeting Follow-Up Email</option>
+        </select>
+      </div>`;
+    } else if(val==='Send Text'){
+      html = `<div class="field"><label>Select Text</label>
+        <select id="tText">
+          <option value="" selected disabled>Select Text</option>
+          <option>General Post-Meeting Thank You Text</option>
+          <option>Post-Meeting Follow-Up Text</option>
+          <option>Missed Meeting Follow-Up Text</option>
+        </select>
+      </div>`;
+    } else if(val==='Fill in Contact Fields'){
+      html = `<div class="field"><label>Select Contact Fields</label>
+        <div id="tFieldsMS" class="ms" data-placeholder="Select Contact Fields"></div>
+      </div>`;
+    } else if(val==='Fill Out Form'){
+      html = `<div class="field"><label>Select Form</label>
+        <select id="tForm">
+          <option value="" disabled selected>Select Form</option>
+          <option>Segwik Initial Walkthrough Form</option>
+          <option>Post-Meeting Feedback Form</option>
+          <option>Discovery Questionnaire</option>
+          <option>Onboarding Checklist</option>
+        </select>
+      </div>`;
+    } else if(val==='Watch Video'){
+      html = `<div class="field"><label>Select Video</label>
+        <select id="tVideo">
+          <option value="" disabled selected>Select Video</option>
+          <option>Segwik App Intro Video</option>
+        </select>
+      </div>`;
+    } else if(val==='Read Article'){
+      html = `<div class="field"><label>Select Article</label>
+        <select id="tArticle">
+          <option value="" disabled selected>Select Article</option>
+          <option>Segwik Quick Pitch Guide</option>
+          <option>Segwik Journeys Overview</option>
+        </select>
+      </div>`;
+    }
+    tExtras.innerHTML = html;
+
+    if(val==='Fill in Contact Fields'){
+      fieldsMS_Att = createTagMultiSelect(document.getElementById('tFieldsMS'), CONTACT_FIELD_OPTIONS, new Set());
+    }
+  }
+
+  function clearTaskForm(){
+    document.getElementById('tName').value = '';
+    document.getElementById('tType').selectedIndex = 0;
+    document.getElementById('tAction').selectedIndex = 0;
+    document.getElementById('tShort').value = '';
+    document.getElementById('tLong').value = '';
+    tExtras.innerHTML = '';
+    fieldsMS_Att = null;
+  }
+
+  taskSave.addEventListener('click', ()=>{
+    const name = (document.getElementById('tName').value||'').trim();
+    const type = document.getElementById('tType').value || '';
+    const action = document.getElementById('tAction').value || '';
+    const isPreActive = document.querySelector('#attTabs .tab.active')?.dataset.tab === 'pre';
+
+    if(!name){ alert('Please enter Task Name.'); return; }
+    if(!type){ alert('Please select Task Type.'); return; }
+    if(!action){ alert('Please select Action.'); return; }
+
+    let resource = '';
+    if(action==='Fill Out Form'){ resource = document.getElementById('tForm')?.value || ''; if(!resource){ alert('Please select a Form.'); return; } }
+    if(action==='Watch Video'){ resource = document.getElementById('tVideo')?.value || ''; if(!resource){ alert('Please select a Video.'); return; } }
+    if(action==='Read Article'){ resource = document.getElementById('tArticle')?.value || ''; if(!resource){ alert('Please select an Article.'); return; } }
+    if(action==='Fill in Contact Fields'){
+      const sel = fieldsMS_Att ? fieldsMS_Att.getSelected() : [];
+      if(!sel.length){ alert('Please select at least one Contact Field.'); return; }
+      resource = sel.join(', ');
+    }
+
+    const id = Math.random().toString(36).slice(2,9);
+    const newTask = { id, title: name, type, action, resource, status: 'Assigned' };
+    (isPreActive ? tasks.pre : tasks.post).push(newTask);
+    renderAttendeeTasks();
+    closeTaskModal();
+  });
+
+  // Remove confirm for Attendee Tasks
+  const rem = document.getElementById('removeConfirm');
+  const remYes = document.getElementById('remYes');
+  const remNo = document.getElementById('remNo');
+  const remClose = document.getElementById('remClose');
+  let removeFn = null;
+  function openRemove(onYes){ removeFn = onYes; rem.classList.add('open'); }
+  [remNo, remClose].forEach(b=> b.addEventListener('click', ()=>{ rem.classList.remove('open'); removeFn=null; }));
+  remYes.addEventListener('click', ()=>{ if(removeFn) removeFn(); rem.classList.remove('open'); removeFn=null; });
+
+  // Dragging for Add Task modal
+  (function(){
+    const dialog = document.getElementById('taskDialog');
+    const bar = dialog.querySelector('.dragbar');
+    let sx, sy, sl, st, dragging=false;
+    bar.addEventListener('mousedown', (e)=>{ dragging=true; const r=dialog.getBoundingClientRect(); sx=e.clientX; sy=e.clientY; sl=r.left; st=r.top; document.body.style.userSelect='none'; });
+    window.addEventListener('mousemove', (e)=>{ if(!dragging) return; const dx=e.clientX-sx, dy=e.clientY-sy; dialog.style.left=(sl+dx)+'px'; dialog.style.top=(st+dy)+'px'; dialog.style.position='fixed'; });
+    window.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect=''; });
+  })();
+
+  // Init renders
+  renderAll();
+  renderAttendeeTasks();
 </script>
 </body>
 </html>
+
+
+
