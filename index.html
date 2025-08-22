@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meeting – View (Fixed)</title>
+<style>
+  :root{ --bg:#f6f8fb; --card:#ffffff; --ink:#243048; --muted:#667085; --line:#e6ebf2; --accent:#0F2D56; --ok:#0b62ff; --pill:#eef4ff; }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
+  .grid{display:grid;grid-template-columns:2fr 1.2fr;gap:18px}
+  @media (max-width:960px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 0 rgba(16,24,40,.02)}
+  .media{padding:10px}
+  .media .imgwrap{position:relative;border-radius:12px;overflow:hidden}
+  .media img{width:100%;display:block}
+  .img-edit{position:absolute;right:10px;top:10px;background:#ffffffea;border:1px solid #dbe4f0;border-radius:10px;padding:8px;cursor:pointer}
+  .img-edit svg{display:block}
+  .content{padding:14px 16px 18px}
+  .title{font-size:28px;line-height:1.25;margin:4px 0 8px 0}
+  .meta{color:#556581;font-size:14px}
+  .meta strong{color:#1d2741}
+  .desc{margin-top:10px;color:#3b4863}
+  .more{color:#0b62ff;text-decoration:underline;cursor:pointer}
+
+  /* Right column tabs */
+  .tabs{display:flex;gap:26px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .tab{position:relative;padding:8px 4px;font-weight:700;color:#0c1a34;opacity:.9;cursor:pointer}
+  .tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-14px;height:3px;border-radius:2px;background:var(--accent)}
+  .panel{padding:18px;min-height:220px;display:flex;align-items:center;justify-content:center;color:#6b7790}
+
+  /* Agenda */
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px}
+  .section-title{font-size:28px}
+  .end-btn{background:#0b62ff;border:1px solid #0b62ff;color:#fff;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  .end-btn.disabled{background:#e9edf5;border-color:#e9edf5;color:#98a2b3;cursor:not-allowed}
+  .agenda-card{padding:14px}
+  .agenda-list{display:flex;flex-direction:column;gap:12px}
+  .agenda-item{border:1px solid #e7edf5;border-radius:12px;padding:14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px}
+  .agenda-item.dragging{opacity:.65}
+  .handle{display:grid;place-items:center;width:28px;cursor:grab}
+  .item-title{font-weight:700}
+  .item-meta{color:#667085;font-size:14px;margin-top:2px}
+  .item-desc{margin-top:8px;color:#2b3856}
+  .item-actions{display:flex;gap:8px;align-items:start}
+  .icon-btn{background:transparent;border:1px solid #e7edf5;border-radius:10px;padding:8px;cursor:pointer}
+  .icon-btn:hover{background:#f6f9fe}
+
+  /* attachments row */
+  .attach-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+  .pill{border:1px solid #cfe0ff;background:var(--pill);color:#0b3b91;border-radius:999px;padding:6px 10px;font-weight:600;font-size:13px;cursor:pointer}
+  .attach-link{color:#0b62ff;text-decoration:underline;cursor:pointer;font-size:13px}
+
+  /* Picker Modal (forms/docs) */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,20,40,.45);z-index:40;padding:20px}
+  .modal.open{display:flex}
+  .dialog{width:min(1040px,96vw);max-height:84vh;background:#fff;border:1px solid #dfe5f0;border-radius:14px;box-shadow:0 14px 60px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden}
+  .dragbar{cursor:move;user-select:none;background:#f8fafc;border-bottom:1px solid #eef2f7;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+  .close-x{background:#fff;border:1px solid #e6ebf2;border-radius:8px;padding:6px 10px;cursor:pointer}
+  .modal-body{padding:16px;overflow:auto}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:12px;border-top:1px solid #eef2f7}
+  .btn{padding:10px 14px;border-radius:10px;border:1px solid #e0e6f2;background:#fff;font-weight:700;cursor:pointer}
+  .btn.primary{background:#0b62ff;border-color:#0b62ff;color:#fff}
+  .field{margin-bottom:12px}
+  label{display:block;font-size:14px;color:#1f2a44;margin-bottom:6px;font-weight:700}
+  .input, select{width:100%;height:44px;border:1px solid #e7edf5;border-radius:8px;padding:0 12px;font-size:15px;color:#0f1f3a;background:#fff;outline:none}
+  .upload-box{border:2px dashed #cfe0ff;background:#f8fbff;border-radius:12px;padding:18px;text-align:center;cursor:pointer}
+  .upload-box input{display:none}
+
+  /* Custom dropdown (multi-select) */
+  .ms{position:relative}
+  .ms-toggle{display:flex;align-items:center;justify-content:space-between;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;height:44px;background:#fff;cursor:pointer}
+  .ms-values{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .ms-placeholder{color:#97a3b6}
+  .ms-pill{border:1px solid #e7edf5;border-radius:999px;padding:2px 8px;font-size:12px;background:#f8fafc}
+  .ms-menu{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #e7edf5;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.08);max-height:260px;overflow:auto;display:none}
+  .ms.open .ms-menu{display:block}
+  .ms-option{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid #f2f5fa}
+  .ms-option:last-child{border-bottom:0}
+
+  /* Floating windows (viewing forms/docs) – NO dark background */
+  .floatwin{position:fixed;left:80px;top:80px;width:min(900px,96vw);max-height:84vh;background:#fff;border:1px solid #dfe5f0;border-radius:14px;box-shadow:0 14px 60px rgba(0,0,0,.25);display:flex;flex-direction:column;z-index:60}
+  .floatwin .dragbar{cursor:move}
+  .floatwin .modal-body{padding:16px;overflow:auto}
+
+  /* Confirm dialog for delete */
+  .confirm{position:fixed;inset:0;background:rgba(10,20,40,.45);display:none;align-items:center;justify-content:center;z-index:50}
+  .confirm.open{display:flex}
+  .confirm .box{background:#fff;border:1px solid #e6ebf2;border-radius:14px;max-width:520px;width:92vw;padding:18px}
+  .confirm .q{font-size:18px;text-align:center;margin:8px 0 14px}
+  .confirm .actions{display:flex;justify-content:center;gap:10px}
+  .btn.dark{background:#0F2D56;color:#fff;border-color:#0F2D56}
+
+  /* End-of-Meeting Drawer */
+  .eom-wrap{position:fixed;inset:0;display:none;z-index:70}
+  .eom-wrap.open{display:block}
+  .eom-scrim{position:absolute;inset:0;background:rgba(10,20,40,.25)}
+  .eom{position:absolute;right:0;top:0;height:100%;width:min(560px,95vw);background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s}
+  .eom.open{transform:translateX(0)}
+  .eom-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .stepper{display:flex;gap:10px}
+  .step{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:999px;border:1px solid #e7edf5;cursor:pointer}
+  .step.active{border-color:#0b62ff;background:#eef4ff}
+  .eom-body{padding:14px 16px;overflow:auto}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:720px){.row{grid-template-columns:1fr}}
+  .table{width:100%;border-collapse:collapse}
+  .table th,.table td{border-bottom:1px solid #eef2f7;padding:8px;text-align:left}
+  .chip{border:1px solid #d8e2f2;background:#f5f8ff;border-radius:999px;padding:4px 8px;font-size:12px;cursor:pointer}
+  .chip.selected{background:#0b62ff;border-color:#0b62ff;color:#fff}
+  .footer{display:flex;justify-content:space-between;gap:10px;padding:12px 16px;border-top:1px solid var(--line)}
+  .muted{color:#6b7790}
+
+  /* Follow-Up Summary (added) */
+  .fus-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .fus-title{font-size:20px;font-weight:800}
+  .fus-meta{display:flex;gap:14px;align-items:center;color:#4b5a78}
+  .fus-body{padding:14px 16px;display:grid;grid-template-columns:1.2fr 1fr;gap:18px}
+  @media (max-width:900px){ .fus-body{grid-template-columns:1fr} }
+  .fus-section{border:1px dashed #e9eef7;border-radius:10px;padding:12px}
+  .fus-section h4{margin:0 0 10px 0;font-size:14px;text-transform:uppercase;letter-spacing:.02em;color:#44506b}
+  .fus-tags{display:flex;gap:8px;flex-wrap:wrap}
+  .fus-list{margin:0;padding-left:18px;color:#2b3856}
+  .fus-row{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;margin-top:8px}
+  .fus-note{padding:10px 16px;border-top:1px solid var(--line);font-size:12px;color:#6b7790}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="grid">
+      <!-- Left column -->
+      <div class="card">
+        <div class="media">
+          <div class="imgwrap">
+            <img src="https://d34hmiuaex7c0.cloudfront.net/2952/uploads/form_value_featured_1754429911120.png" alt="Featured meeting image"/>
+            <button class="img-edit" title="Edit image" aria-label="Edit image">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="title">Vladimir - Segwik Initial Walk Through</div>
+          <div class="meta">Meeting Type: <strong>Segwik Initial Walk Through</strong></div>
+          <div class="meta" style="margin-top:6px;">Aug 15, 2025 &nbsp; 2:15pm – 2:20pm &nbsp; , America/Mexico_City</div>
+          <div class="meta" style="margin-top:6px;">Virtual : <a href="#">https://zoom.us/j/23178803322?pwd=5Qnk965DRd7wfSgUK5FX0gc2gxuqW.1</a><br/>Meeting ID: 231 788 03322 &nbsp; Passcode: 5Ra0SR</div>
+          <div class="desc">A quick, personalized walkthrough of Segwik to help new users get oriented, answer questions, and schedule a 30-day check-in for ongoing support. <span class="more" id="moreBtn">more</span></div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="card">
+        <div class="tabs">
+          <div class="tab active" data-tab="video">Video</div>
+          <div class="tab" data-tab="chat">Chat</div>
+        </div>
+        <div class="panel" id="videoPanel">Coming Soon..</div>
+        <div class="panel" id="chatPanel" style="display:none">Coming Soon..</div>
+      </div>
+    </div>
+
+    <!-- Follow-Up Summary heading outside the card -->
+    <div class="section-head" style="margin-top:28px">
+      <div class="section-title">Follow-Up Summary</div>
+    </div>
+    <!-- Follow-Up Summary card (hidden until Smart Tasks run) -->
+    <div id="followUpCard" class="card" style="display:none; margin-bottom:12px">
+      <div class="fus-head" style="justify-content:flex-start; gap:12px">
+        <div class="fus-meta">
+          <span class="chip"><strong>Contact:</strong> <span id="fuContact">Vladimir</span></span>
+          <span class="chip selected"><strong>Status:</strong> <span id="fuStatus">Attended</span></span>
+        </div>
+      </div>
+      <div class="fus-body">
+        <div class="fus-section">
+          <h4>Journeys Selected</h4>
+          <div id="fuJourneys" class="fus-tags"></div>
+        </div>
+        <div class="fus-section">
+          <h4>Smart Tasks Queued</h4>
+          <ol id="fuTasks" class="fus-list"></ol>
+          <div class="fus-row">
+            <div class="muted">Queued</div>
+            <div id="fuQueuedTime">Just now</div>
+          </div>
+          <div class="fus-row">
+            <div class="muted">Applies To</div>
+            <div id="fuApplies">Vladimir</div>
+          </div>
+        </div>
+      </div>
+      <div class="fus-note">The journeys have been triggered, and the smart tasks are now in queue.</div> 
+    </div>
+
+    <div class="section-head">
+      <div class="section-title">Agenda</div>
+      <div>
+        <button id="endBtn" class="end-btn">End Meeting</button>
+      </div>
+    </div>
+    <div class="card agenda-card">
+      <div class="agenda-list" id="agendaList"></div>
+    </div>
+  </div>
+
+  <!-- Picker Modal (forms/docs) -->
+  <div class="modal" id="modal">
+    <div class="dialog" id="dialog">
+      <div class="dragbar" id="dragbar"><h4 id="modalTitle">Modal</h4><button class="close-x" id="closeModal">✕</button></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions"><button class="btn" id="cancelBtn">Cancel</button><button class="btn primary" id="saveBtn">Add</button></div>
+    </div>
+  </div>
+
+  <!-- Confirm Remove Modal -->
+  <div class="confirm" id="confirmModal">
+    <div class="box">
+      <div style="display:flex;justify-content:flex-end"><button class="icon-btn" id="confirmClose" aria-label="Close">✖</button></div>
+      <div class="q">Are you sure you want to remove agenda?</div>
+      <div class="actions">
+        <button class="btn dark" id="confirmYes">YES</button>
+        <button class="btn" id="confirmNo">NO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- End-of-Meeting Drawer -->
+  <div class="eom-wrap" id="eomWrap">
+    <div class="eom-scrim" id="eomScrim"></div>
+    <aside class="eom" id="eom">
+      <div class="eom-head">
+        <strong>End of Meeting</strong>
+        <div class="stepper">
+          <!-- labels only + clickable -->
+          <div class="step" id="s1" data-step="1">Attendees</div>
+          <div class="step" id="s2" data-step="2">Journeys</div>
+          <div class="step" id="s3" data-step="3">Review</div>
+        </div>
+        <button class="close-x" id="eomClose">✕</button>
+      </div>
+      <div class="eom-body" id="eomBody"></div>
+      <div class="footer">
+        <div class="muted" id="eomCounter">1 selected • 0 tasks</div>
+        <div>
+          <button class="btn" id="backBtn">Back</button>
+          <button class="btn primary" id="nextBtn">Next</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+  // Tabs
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+    const showVideo = t.dataset.tab==='video';
+    document.getElementById('videoPanel').style.display = showVideo?'flex':'none';
+    document.getElementById('chatPanel').style.display = showVideo?'none':'flex';
+  }));
+  document.getElementById('moreBtn').addEventListener('click', (e)=>{
+    e.currentTarget.parentElement.textContent = 'A quick, personalized walkthrough of Segwik to help new users get oriented, answer questions, and schedule a 30-day check-in for ongoing support.';
+  });
+
+  // Catalogs
+  const FORM_OPTIONS = ['Segwik Initial Walkthrough Form','Onboarding Checklist','Post-Meeting Feedback','Discovery Questionnaire','Budget Intake Form','Security Review Form','Requirements Capture','Change Request Form'];
+  const DOC_OPTIONS = ['Segwik Quick Pitch Guide','Segwik Pricing & Plan Snapshot','Segwik Journeys Overview','Segwik Features'];
+  const JOURNEYS = [
+    'Referral Partner Journey',
+    'Solopreneur Journey',
+    'Small Business Journey',
+    'Owner Journey',
+    'Small Business Employee Journey',
+    'Sales Team Journey',
+    'Enterprise Journey',
+    'Not Interested Journey',
+    'Nurturing Journey'
+  ];
+  const SMART_TASK_OPTIONS = [
+    'Modify Contact Details',
+    'Forward Contact To Pete for Follow-Up',
+    'Create a Project',
+    'Log Note'
+  ];
+  const CONTACT_FIELD_OPTIONS = [
+    'Tags','Contact Type','Business Goals','Industry','Job Title','Persona','General Info','Birthday','Website','Calendar Booker Url'
+  ];
+  const MEETING_STATUSES=['Attended','Rescheduled','Cancelled','No Show'];
+
+  // Agenda data
+  const agendaData = [
+    {title:'Review Pre-Meeting Form', dur:3, desc:'Confirm whether the pre-meeting form was completed and, if so, review responses to gain initial context before proceeding.', forms:[], docs:[]},
+    {title:'Discovery & Profiling Questions', dur:12, desc:'Ask all key qualification and profiling questions in one sequence to determine if the contact is most likely to buy, give referrals, or express interest for the future.', forms:['Segwik Initial Walkthrough Form'], docs:[]},
+    {title:'Product Demo', dur:8, desc:'Give a concise demonstration of Segwik’s most relevant features tailored to the prospect’s needs.', forms:[], docs:[]},
+    {title:'Package Selection & Commitment', dur:4, desc:'Present available subscription options, confirm interest, and secure next steps—sign-up, schedule with Pete, or defer decision.', forms:[], docs:['Segwik Packages']},
+    {title:'Referral Program Invite', dur:2, desc:'Offer the Referral Partner Program as an additional or alternative engagement path, even if they’re not ready to buy.', forms:[], docs:[]},
+    {title:'Wrap-Up & Journey Selection', dur:1, desc:'Summarize agreed next steps, confirm follow-up details, and log the final Journey type for tracking.', forms:[], docs:[]}
+  ];
+
+  const agendaList = document.getElementById('agendaList');
+  renderAll();
+
+  function renderAll(){
+    agendaList.innerHTML='';
+    agendaData.forEach((it, idx)=> agendaList.appendChild(renderItem(it, idx)) );
+  }
+
+  function renderItem(it, idx){
+    const item = document.createElement('div'); item.className = 'agenda-item'; item.dataset.idx = idx;
+
+    const handle = document.createElement('div'); handle.className = 'handle'; handle.setAttribute('draggable','true');
+    handle.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1" fill="#0F2D56"/><rect x="14" y="4" width="6" height="6" rx="1" fill="#0F2D56"/><rect x="4" y="14" width="6" height="6" rx="1" fill="#0F2D56"/><rect x="14" y="14" width="6" height="6" rx="1" fill="#0F2D56"/></svg>`;
+
+    const body = document.createElement('div');
+    body.innerHTML = `<div class="item-title">${it.title}</div><div class="item-meta">Duration: ${it.dur} Minutes</div><div class="item-desc">${it.desc}</div>`;
+    body.appendChild(renderAttachments(it, item));
+
+    const actions = document.createElement('div'); actions.className='item-actions';
+    const del = iconBtn('x'); del.title='Delete'; del.addEventListener('click', ()=> openConfirm(()=>{ const cur = parseInt(item.dataset.idx); agendaData.splice(cur,1); renderAll(); }));
+    const edit = iconBtn('edit'); edit.title='Edit'; edit.addEventListener('click', ()=> openEdit(parseInt(item.dataset.idx)) );
+    actions.appendChild(del); actions.appendChild(edit);
+
+    // Drag behaviour via handle
+    handle.addEventListener('dragstart', ()=>{ item.classList.add('dragging'); });
+    handle.addEventListener('dragend', ()=>{ item.classList.remove('dragging'); syncOrderFromDOM(); });
+
+    item.appendChild(handle); item.appendChild(body); item.appendChild(actions);
+    return item;
+  }
+
+  agendaList.addEventListener('dragover', (e)=>{
+    e.preventDefault();
+    const dragging = document.querySelector('.agenda-item.dragging');
+    if(!dragging) return;
+    const after = getDragAfterElement(agendaList, e.clientY);
+    if(after == null){ agendaList.appendChild(dragging); }
+    else { agendaList.insertBefore(dragging, after); }
+  });
+  function getDragAfterElement(container, y){
+    const elems = [...container.querySelectorAll('.agenda-item:not(.dragging)')];
+    return elems.reduce((closest, child)=>{
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height/2;
+      if(offset < 0 && offset > closest.offset){ return {offset, element: child}; }
+      else { return closest; }
+    }, {offset: Number.NEGATIVE_INFINITY}).element;
+  }
+  function syncOrderFromDOM(){
+    const newOrder = [];
+    [...agendaList.children].forEach((node)=>{ newOrder.push(agendaData[parseInt(node.dataset.idx)]); });
+    agendaData.splice(0, agendaData.length, ...newOrder);
+    renderAll();
+  }
+
+  function renderAttachments(it, hostItem){
+    const attach = document.createElement('div'); attach.className='attach-row';
+    if(it.forms && it.forms.length){ it.forms.forEach(name=> attach.appendChild(pill(name, ()=> openFormWindow(name)))); }
+    if(it.docs && it.docs.length){ it.docs.forEach(name=> attach.appendChild(pill(name, ()=> openDocWindow(name)))); }
+
+    const af = document.createElement('a'); af.className='attach-link'; af.textContent='Attach Forms'; af.href='#';
+    af.addEventListener('click', (e)=>{ e.preventDefault(); openFormsPicker(parseInt(hostItem.dataset.idx)); });
+    const ad = document.createElement('a'); ad.className='attach-link'; ad.textContent='Attach Documents'; ad.href='#';
+    ad.addEventListener('click', (e)=>{ e.preventDefault(); openDocsPicker(parseInt(hostItem.dataset.idx)); });
+    attach.appendChild(af); attach.appendChild(ad);
+
+    return attach;
+  }
+
+  function pill(text, onClick){ const p = document.createElement('button'); p.className='pill'; p.type='button'; p.textContent=text; p.addEventListener('click', onClick); return p; }
+  function iconBtn(kind){ const b = document.createElement('button'); b.className='icon-btn'; if(kind==='x') b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'; if(kind==='edit') b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>'; return b; }
+
+  // ------- Edit agenda -------
+  function openEdit(idx){
+    const it = agendaData[idx];
+    const body = `
+      <div class="field"><label>Title</label><input id="eTitle" class="input" value="${it.title.replaceAll('"','&quot;')}"/></div>
+      <div class="field"><label>Duration (minutes)</label><input id="eDur" class="input" value="${it.dur}"/></div>
+      <div class="field"><label>Description</label><textarea id="eDesc" class="input">${it.desc.replaceAll('<','&lt;')}</textarea></div>`;
+    openModal('Edit Agenda', body, 'Save');
+    saveBtn.onclick = ()=>{ it.title=document.getElementById('eTitle').value.trim(); it.dur=parseInt(document.getElementById('eDur').value)||it.dur; it.desc=document.getElementById('eDesc').value.trim(); closeModal(); renderAll(); };
+  }
+
+  // ------- Pickers (dropdown-style multi-select) -------
+  function openFormsPicker(idx){
+    const it = agendaData[idx];
+    const body = `<div class="field"><label>Select form(s)</label><div id="formsMS" class="ms" data-placeholder="Choose forms"></div></div>`;
+    openModal('Attach Forms', body, 'Add');
+    const formsMS = createMultiSelect(document.getElementById('formsMS'), FORM_OPTIONS, new Set(it.forms));
+    saveBtn.onclick = ()=>{ it.forms = Array.from(new Set([...(it.forms||[]), ...formsMS.getSelected()])); closeModal(); renderAll(); };
+  }
+  function openDocsPicker(idx){
+    const it = agendaData[idx];
+    const body = `<div class="field"><label>Select document(s)</label><div id="docsMS" class="ms" data-placeholder="Choose documents"></div></div><div class="field"><label>Upload new</label><label class="upload-box" for="docUpload">Drop files here or click to upload<input id="docUpload" type="file" multiple></label></div>`;
+    openModal('Attach Documents', body, 'Add');
+    const docsMS = createMultiSelect(document.getElementById('docsMS'), DOC_OPTIONS, new Set(it.docs));
+    saveBtn.onclick = ()=>{ const selected = docsMS.getSelected(); const files = Array.from(document.getElementById('docUpload').files||[]).map(f=>f.name); it.docs = Array.from(new Set([...(it.docs||[]), ...selected, ...files])); closeModal(); renderAll(); };
+  }
+
+  /* Existing checkbox-style multi-select (used for Forms/Docs pickers) */
+  function createMultiSelect(el, options, preselected=new Set()){
+    const state = {selected: new Set(preselected)};
+    const toggle = document.createElement('div'); toggle.className='ms-toggle';
+    const values = document.createElement('div'); values.className='ms-values';
+    const caret = document.createElement('span'); caret.textContent='▾';
+    toggle.appendChild(values); toggle.appendChild(caret);
+    const menu = document.createElement('div'); menu.className='ms-menu';
+    options.forEach(opt=>{
+      const row = document.createElement('label'); row.className='ms-option';
+      const cb = document.createElement('input'); cb.type='checkbox'; cb.value=opt; cb.checked = state.selected.has(opt);
+      const sp = document.createElement('span'); sp.textContent=opt;
+      row.appendChild(cb); row.appendChild(sp); menu.appendChild(row);
+      cb.addEventListener('change', ()=>{ if(cb.checked) state.selected.add(opt); else state.selected.delete(opt); render(); });
+    });
+    el.appendChild(toggle); el.appendChild(menu);
+    toggle.addEventListener('click', (e)=>{ e.stopPropagation(); el.classList.toggle('open'); });
+    document.addEventListener('click', ()=> el.classList.remove('open'));
+    function render(){
+      values.innerHTML='';
+      if(state.selected.size===0){ const ph=document.createElement('span'); ph.className='ms-placeholder'; ph.textContent=el.dataset.placeholder||'Select...'; values.appendChild(ph); }
+      else { state.selected.forEach(v=>{ const pill=document.createElement('span'); pill.className='ms-pill'; pill.textContent=v; values.appendChild(pill); }); }
+    }
+    render();
+    return { getSelected: ()=> Array.from(state.selected) };
+  }
+
+  /* NEW: Tag-style multi-select WITHOUT checkboxes (for Journeys/Smart Tasks/Contact Fields) */
+  function createTagMultiSelect(el, options, preselected=new Set()){
+    const state = {selected: new Set(preselected)};
+    const toggle = document.createElement('div'); toggle.className='ms-toggle';
+    const values = document.createElement('div'); values.className='ms-values';
+    const caret = document.createElement('span'); caret.textContent='▾';
+    toggle.appendChild(values); toggle.appendChild(caret);
+    const menu = document.createElement('div'); menu.className='ms-menu';
+    options.forEach(opt=>{
+      const row = document.createElement('div'); row.className='ms-option'; row.setAttribute('data-value', opt);
+      const sp = document.createElement('span'); sp.textContent=opt;
+      row.appendChild(sp); menu.appendChild(row);
+      row.addEventListener('click', (e)=>{ e.stopPropagation(); if(state.selected.has(opt)){ state.selected.delete(opt); } else { state.selected.add(opt); } render(); });
+    });
+    el.appendChild(toggle); el.appendChild(menu);
+    toggle.addEventListener('click', (e)=>{ e.stopPropagation(); el.classList.toggle('open'); });
+    document.addEventListener('click', ()=> el.classList.remove('open'));
+    function render(){
+      values.innerHTML='';
+      if(state.selected.size===0){ const ph=document.createElement('span'); ph.className='ms-placeholder'; ph.textContent=el.dataset.placeholder||'Select...'; values.appendChild(ph); }
+      else { state.selected.forEach(v=>{ const pill=document.createElement('span'); pill.className='ms-pill'; pill.textContent=v; values.appendChild(pill); }); }
+      // highlight selected in menu
+      [...menu.children].forEach(ch=>{
+        const val = ch.getAttribute('data-value');
+        ch.style.background = state.selected.has(val) ? '#f5f8ff' : '#fff';
+      });
+    }
+    render();
+    return { getSelected: ()=> Array.from(state.selected) };
+  }
+
+  // ------- Delete confirmation -------
+  const cModal = document.getElementById('confirmModal');
+  const cYes = document.getElementById('confirmYes');
+  const cNo = document.getElementById('confirmNo');
+  const cClose = document.getElementById('confirmClose');
+  function openConfirm(onYes){ cModal.classList.add('open'); cYes.onclick=()=>{ onYes(); cModal.classList.remove('open'); }; }
+  [cNo,cClose].forEach(b=> b.addEventListener('click', ()=> cModal.classList.remove('open')));
+
+  // ------- Modal plumbing (picker) -------
+  const modal = document.getElementById('modal');
+  const dialog = document.getElementById('dialog');
+  const dragbar = document.getElementById('dragbar');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const closeModalBtn = document.getElementById('closeModal');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  function openModal(title, bodyHTML, saveLabel='Add'){ modalTitle.textContent = title; modalBody.innerHTML = bodyHTML; saveBtn.textContent = saveLabel; modal.classList.add('open'); }
+  function closeModal(){ modal.classList.remove('open'); }
+  closeModalBtn.addEventListener('click', closeModal); cancelBtn.addEventListener('click', closeModal);
+  (function(){ let startX, startY, startL, startT, dragging=false; dragbar.addEventListener('mousedown', (e)=>{ dragging = true; const r = dialog.getBoundingClientRect(); startX = e.clientX; startY = e.clientY; startL = r.left; startT = r.top; document.body.style.userSelect='none'; }); window.addEventListener('mousemove', (e)=>{ if(!dragging) return; const dx = e.clientX - startX; const dy = e.clientY - startY; dialog.style.position='fixed'; dialog.style.left = (startL + dx) + 'px'; dialog.style.top = (startT + dy) + 'px'; }); window.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect=''; }); })();
+
+  // ------- Float windows (view forms/docs) – background NOT dark -------
+  function createFloatWindow(title, bodyHTML){
+    const fw = document.createElement('div'); fw.className='floatwin';
+    fw.innerHTML = `<div class="dragbar"><h4 style="margin:0">${title}</h4><button class="close-x">✕</button></div><div class="modal-body">${bodyHTML}</div>`;
+    document.body.appendChild(fw);
+    const bar = fw.querySelector('.dragbar');
+    const close = fw.querySelector('.close-x');
+    close.addEventListener('click', ()=> fw.remove());
+    let sx, sy, sl, st, dragging=false;
+    bar.addEventListener('mousedown', (e)=>{ dragging=true; const r = fw.getBoundingClientRect(); sx=e.clientX; sy=e.clientY; sl=r.left; st=r.top; document.body.style.userSelect='none'; });
+    window.addEventListener('mousemove', (e)=>{ if(!dragging) return; const dx=e.clientX-sx, dy=e.clientY-sy; fw.style.left=(sl+dx)+'px'; fw.style.top=(st+dy)+'px'; fw.style.position='fixed'; });
+    window.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect=''; });
+    return fw;
+  }
+
+  // ------- Forms (radio inputs clickable) -------
+  function openFormWindow(name){
+    const html = `
+      <form id="walkForm">
+        ${rf('Confirm if pre-meeting form was completed', ['Yes - Review Form Responses','No'])}
+        ${rf('Work Style', ['Solo','Organization'])}
+        ${rf('Decision-making authority', ['Yes','No'])}
+        ${rf('Main Priority for this Call', ['Learn about the app','Referrals / network growth','Solve networking challenges'])}
+        ${rf('Networking challenges faced', ['Yes','No'])}
+        ${rf('Technology Comfort Level', ['Very Comfortable','Neutral','Not Comfortable'])}
+        ${rf('Segwik App Status', ['Installed and Used','Start Demo'])}
+        ${rf('Interest in Segwik', ['Not Interested','Interested, Not Ready','Ready to Buy','Start Demo'])}
+        ${rf('After Demo – Next Step', ['Ready to Buy','Wants to Speak with Pete','Not Interested','No Time Right Now'])}
+        ${rf('Schedule Meeting with Pete', ['Done Scheduling','Will Schedule Time Later'])}
+        ${rf('Choose Package', ['Solopreneur','Small Business','Enterprise'])}
+        ${rf('Identify Decision Maker', ['Decision Maker Identified','Decision Maker Not Identified'])}
+        <div class="field" id="dmFields" style="display:none;">
+          <label>Decision Maker Details</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><input class="input" placeholder="Name"/><input class="input" placeholder="Email"/></div>
+        </div>
+        ${rf('Referral Program Interest', ['Interested in Referral Program','Not Interested in Referral Program'])}
+      </form>
+      <div style="font-size:12px;color:#6b7790;margin-top:6px;">All fields are single-choice (radio).</div>`;
+    const win = createFloatWindow(name, html);
+    win.addEventListener('change', (e)=>{
+      if(e.target && e.target.name==='Identify Decision Maker'){
+        win.querySelector('#dmFields').style.display = (e.target.value==='Decision Maker Identified') ? 'block' : 'none';
+      }
+    });
+  }
+  function rf(label, options){
+    return `<fieldset class="field"><label>${label}</label>${options.map((o,i)=>`<label style=\"display:inline-flex;align-items:center;gap:6px;margin:0 10px 6px 0\"><input type=\"radio\" name=\"${label}\" value=\"${o}\" ${i===0?'checked':''}/> <span>${o}</span></label>`).join('')}</fieldset>`
+  }
+
+  // ------- Documents content -------
+  function openDocWindow(name){
+    let html='';
+    if(name==='Segwik Quick Pitch Guide'){
+      html = `<article><h2>Segwik Quick Pitch Guide (One-Minute Intro)</h2>
+      <h3>What is Segwik?</h3>
+      <p>Segwik is more than a CRM — it’s a Relationship Operating System that helps you track, grow, and automate every touchpoint in your business. From managing warm leads to staying connected with past clients, Segwik makes sure no relationship slips through the cracks.</p>
+      <h3>Top 3 Benefits:</h3>
+      <ul><li><strong>Never Miss a Follow-Up</strong> – Automated reminders and Smart Tasks keep you on track.</li><li><strong>Centralize Communication</strong> – Calls, emails, texts, forms, and notes in one place.</li><li><strong>Scale Your Network</strong> – AI-driven journeys nurture leads and referrals for you.</li></ul>
+      <p><em>Sample Success:</em> A local realtor increased referrals by 42% in 3 months using Segwik Journeys and Smart Tasks.</p></article>`;
+    } else if(name==='Segwik Pricing & Plan Snapshot'){
+      html = `<article><h2>Segwik Pricing & Plan Snapshot (Quick Reference)</h2>
+      <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Plan Name</th><th>Best For</th><th>Key Features</th><th>Price (Monthly)</th></tr></thead>
+      <tbody>
+        <tr><td>Core</td><td>Solo professionals just getting organized</td><td>Contact management, 2 active journeys, email/text reminders</td><td>$49</td></tr>
+        <tr><td>Plus</td><td>Small businesses growing relationships</td><td>All Core features + unlimited journeys, AI follow-up, reporting dashboard</td><td>$99</td></tr>
+        <tr><td>Pro</td><td>Teams & organizations with complex needs</td><td>All Plus features + multiple users, integrations, advanced automation</td><td>$199</td></tr>
+      </tbody></table>
+      <h3>Add-Ons:</h3>
+      <ul><li><strong>Segwik Tokens:</strong> Pay-as-you-go credits for custom work, integrations, data imports.</li><li><strong>Premium Onboarding:</strong> Hands-on setup and 1-on-1 training.</li></ul></article>`;
+    } else if(name==='Segwik Journeys Overview'){
+      html = `<article><h2>Segwik Journeys Overview (High-Level)</h2>
+      <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%"><thead><tr><th>Journey Name</th><th>Purpose</th><th>Ideal Audience</th><th>Outcome</th></tr></thead>
+      <tbody>
+        <tr><td>New Lead Nurture</td><td>Build trust and move leads toward booking</td><td>Potential customers</td><td>Lead conversion</td></tr>
+        <tr><td>Referral Partner Warm-Up</td><td>Strengthen partnerships for ongoing referrals</td><td>BNI / networking contacts</td><td>Active referral pipeline</td></tr>
+        <tr><td>Post-Meeting Follow-Up</td><td>Keep momentum after a discovery call</td><td>Prospects and partners</td><td>Book next steps</td></tr>
+        <tr><td>Past Client Check-In</td><td>Stay top-of-mind with previous clients</td><td>All past customers</td><td>Repeat business & referrals</td></tr>
+        <tr><td>Event Attendee Journey</td><td>Engage after networking events</td><td>Attendees and connections</td><td>New leads added to CRM</td></tr>
+      </tbody></table></article>`;
+    } else if(name==='Segwik Packages'){
+      html = `<article>
+        <h2 style="margin-top:0">Segwik Onboarding Tiers & Who They’re For</h2>
+        <p>Segwik offers onboarding plans tailored to different stages of business growth, from solo professionals to large organizations. Each plan is designed to match where you are now and help you grow your relationship capacity.</p>
+        <h3>1. Solo / Individual</h3>
+        <p><strong>Best For:</strong> Freelancers, solo creatives, independent professionals<br/>
+        <strong>Plan:</strong> Momentum Starter ($199)<br/>
+        <strong>Focus:</strong> Get moving quickly with essential setup, syncing, and a personalized follow-up rhythm.<br/>
+        <strong>Key Features:</strong> Account configuration, contact/calendar sync, email system setup, and a 30-min jumpstart session.</p>
+        <h3>2. Small Business</h3>
+        <p><strong>Best For:</strong> Coaches, consultants, small business teams<br/>
+        <strong>Plan:</strong> Comms + Cadence Builder ($799)<br/>
+        <strong>Focus:</strong> Build professional communication systems and cadence for consistent engagement.</p>
+        <p><strong>Key Features:</strong> Everything in Momentum Starter plus texting/calling setup, compliance, messaging templates, auto-attendant, and booking tools.</p>
+        <h3>3. Growth-Stage Business</h3>
+        <p><strong>Best For:</strong> Growth-stage pros, relationship-heavy businesses<br/>
+        <strong>Plan:</strong> Intelligent Relationship Engine ($1,499)<br/>
+        <strong>Focus:</strong> Scale operations with AI-driven tools and smart client engagement.</p>
+        <p><strong>Key Features:</strong> Everything in Builder plus AI assistant activation, chatbot setup, contact segmentation, appointment flows, and pipeline mapping.</p>
+        <h3>4. Organization / Enterprise</h3>
+        <p><strong>Best For:</strong> Multi-person organizations, franchises, agencies<br/>
+        <strong>Plan:</strong> Strategic Enterprise Onboarding (Custom)<br/>
+        <strong>Focus:</strong> Build an advanced Relationship OS with full customization, automation, and team logic.
+        <br/>
+        <strong>Key Features:</strong> Everything in Engine plus workflow automation, quoting/invoicing, white-labeling, role permissions, full data migration, and a strategic roadmap session.</p>
+        <h3>Add-Ons (Any Tier)</h3>
+        <ul><li>Data import from older platforms</li><li>Custom nurture journey setup</li><li>Additional AI personas</li><li>Advanced integration setup</li></ul>
+        <h3>Special Services</h3>
+        <ul><li>Data Migration: Seamless transition from old systems</li><li>Replatforming: High-touch consulting to redesign workflows and infrastructure</li></ul>
+      </article>`;
+    } else {
+      html = `<article><h2>${name}</h2><p>Preview unavailable. This is a placeholder for the uploaded document.</p></article>`;
+    }
+    createFloatWindow(name, html);
+  }
+
+  // ================= End-of-Meeting drawer =================
+  const endBtn = document.getElementById('endBtn'); const eomWrap = document.getElementById('eomWrap'); const eom = document.getElementById('eom'); const eomBody = document.getElementById('eomBody'); const eomClose = document.getElementById('eomClose'); const eomScrim = document.getElementById('eomScrim'); const backBtn = document.getElementById('backBtn'); const nextBtn = document.getElementById('nextBtn'); const eomCounter = document.getElementById('eomCounter'); const s1=document.getElementById('s1'), s2=document.getElementById('s2'), s3=document.getElementById('s3');
+  let step=1;
+  const attendees = [ {id:'c1', name:'Vladimir', role:'Prospect', selected:true, journeys:[]} ];
+  let meetingStatus = MEETING_STATUSES[0]; // default Attended
+
+  // Selected Smart Tasks (tag-style select state)
+  let selectedSmartTasks = [];
+
+  // recipes holds only custom tasks (inline add)
+  const recipes = { custom:[] };
+
+  // Hold refs for tag-style controls so we can sync before navigation
+  let bulkMS = null, smartMS = null, fieldsMS = null;
+
+  function openEOM(){ eomWrap.classList.add('open'); setTimeout(()=> eom.classList.add('open'), 0); step=1; renderStep(); }
+  function closeEOM(){ eom.classList.remove('open'); setTimeout(()=> eomWrap.classList.remove('open'), 200); }
+  endBtn.addEventListener('click', openEOM); eomClose.addEventListener('click', closeEOM); eomScrim.addEventListener('click', closeEOM);
+
+  // Back/Next: ALWAYS Attendees -> Journeys -> Review; queue only on Review "Run"
+  backBtn.addEventListener('click', ()=>{
+    if(step===2){ // leaving Journeys backward? keep selections
+      if(bulkMS && smartMS){ attendees[0].journeys = bulkMS.getSelected(); selectedSmartTasks = smartMS.getSelected(); }
+    }
+    if(step>1){ step--; renderStep(); }
+  });
+
+  nextBtn.addEventListener('click', ()=>{
+    if(step===1){
+      step = 2; renderStep(); return;
+    }
+    if(step===2){
+      if(bulkMS && smartMS){ attendees[0].journeys = bulkMS.getSelected(); selectedSmartTasks = smartMS.getSelected(); }
+      step = 3; renderStep(); return; // go to Review, do not queue yet
+    }
+    if(step===3){
+      runSmartTasks(); // queue only here
+    }
+  });
+
+  // Make step labels clickable
+  [s1,s2,s3].forEach(node=>{
+    node.addEventListener('click', ()=>{ step = parseInt(node.dataset.step,10); renderStep(); });
+  });
+
+  function renderStep(){
+    s1.classList.toggle('active', step===1); s2.classList.toggle('active', step===2); s3.classList.toggle('active', step===3);
+    if(step===1){ renderStep1(); nextBtn.textContent='Next'; }
+    if(step===2){ renderStep2(); nextBtn.textContent='Next'; }
+    if(step===3){ renderStep3(); nextBtn.textContent='Run Smart Tasks'; }
+    updateCounter();
+  }
+
+  function renderStep1(){ eomBody.innerHTML = `
+      <p class="muted">Set meeting status.</p>
+      <table class="table"><thead><tr><th>Contact</th><th>Meeting Status</th></tr></thead><tbody id="attBody"></tbody></table>`;
+    const tbody = document.getElementById('attBody');
+    const a = attendees[0];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:#ecf2ff"></div><div><div style="font-weight:700">${a.name}</div><div class=\"muted\" style=\"font-size:12px\">${a.role}</div></div></div></td>
+      <td><div id="statusChips" style="display:flex;gap:6px;flex-wrap:wrap"></div></td>`;
+    tbody.appendChild(tr);
+    const chips = document.getElementById('statusChips');
+    MEETING_STATUSES.forEach(st=>{ const chip=document.createElement('span'); chip.className='chip'+(st===meetingStatus?' selected':''); chip.textContent=st; chip.addEventListener('click', ()=>{ meetingStatus=st; renderStep1(); }); chips.appendChild(chip); });
+  }
+
+  function renderStep2(){ 
+    // Journeys (tag style) + Smart Tasks (tag style) + inline task creator (extended with placeholders and contact fields tag-select)
+    eomBody.innerHTML = `
+      <div class="field">
+        <label>Bulk Journey</label>
+        <div id="bulkMS" class="ms" data-placeholder="Pick journey(s)"></div>
+      </div>
+      <div class="field">
+        <label>Smart Tasks</label>
+        <div id="smartMS" class="ms" data-placeholder="Pick task(s)"></div>
+      </div>
+      <h4 style="margin-top:6px">Custom Tasks</h4>
+      <div id="recipes"></div>
+      <div style="margin-top:8px"><a href="#" id="addTaskLink" class="attach-link">Add a Task</a></div>
+      <div id="inlineTask" style="display:none;margin-top:10px;border-top:1px solid #eef2f7;padding-top:10px">
+        <div class="field"><label>Task Name</label><input id="itName" class="input" placeholder="e.g., Send welcome email"></div>
+        <div class="row">
+          <div class="field"><label>Task Type</label>
+            <select id="itType">
+              <option value="" selected disabled>Select Task Type</option>
+              <option value="User">User</option>
+              <option value="Contact">Contact</option>
+            </select>
+          </div>
+          <div class="field"><label>Action</label>
+            <select id="itAction">
+              <option value="" selected disabled>Select Action</option>
+              <option value="Send Email">Send Email</option>
+              <option value="Send Text">Send Text</option>
+              <option value="Fill in Contact Fields">Fill in Contact Fields</option>
+            </select>
+          </div>
+        </div>
+        <div id="actionExtras"></div>
+        <div class="field"><label>Short Description</label><input id="itShort" class="input" placeholder="Short description"></div>
+        <div class="field"><label>Long Description</label><textarea id="itLong" class="input" placeholder="Details..."></textarea></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" id="itCancel">Cancel</button>
+          <button class="btn primary" id="itAdd">Add Task</button>
+        </div>
+      </div>
+    `;
+
+    // Tag-style controls (no checkboxes)
+    bulkMS = createTagMultiSelect(document.getElementById('bulkMS'), JOURNEYS, new Set(attendees[0].journeys));
+    smartMS = createTagMultiSelect(document.getElementById('smartMS'), SMART_TASK_OPTIONS, new Set(selectedSmartTasks));
+
+    // Render current custom tasks list
+    const rec = document.getElementById('recipes'); rec.innerHTML = '';
+    recipes.custom.forEach((t, i)=> rec.appendChild(customToggle(t, i)) );
+
+    // "Add Task" – same behavior, with placeholders & conditional multi-select for contact fields
+    const addTaskLink = document.getElementById('addTaskLink');
+    const inlineTask = document.getElementById('inlineTask');
+    const actionExtras = document.getElementById('actionExtras');
+
+    addTaskLink.addEventListener('click', (e)=>{
+      e.preventDefault();
+      inlineTask.style.display = inlineTask.style.display==='none' ? 'block' : 'none';
+    });
+    document.getElementById('itCancel').addEventListener('click', ()=>{
+      inlineTask.style.display='none';
+    });
+
+    const itAction = document.getElementById('itAction');
+    function renderActionExtras(){
+      const val = itAction.value;
+      let html = '';
+      if(val==='Send Email'){
+        html = `<div class="field"><label>Select Email</label>
+          <select id="itEmail">
+            <option value="" selected disabled>Select Email</option>
+            <option>General Post-Meeting Thank You Email</option>
+            <option>Post-Meeting Follow-Up Email</option>
+            <option>Missed Meeting Follow-Up Email</option>
+          </select>
+        </div>`;
+        actionExtras.innerHTML = html;
+        fieldsMS = null;
+      } else if(val==='Send Text'){
+        html = `<div class="field"><label>Select Text</label>
+          <select id="itText">
+            <option value="" selected disabled>Select Text</option>
+            <option>General Post-Meeting Thank You Text</option>
+            <option>Post-Meeting Follow-Up Text</option>
+            <option>Missed Meeting Follow-Up Text</option>
+          </select>
+        </div>`;
+        actionExtras.innerHTML = html;
+        fieldsMS = null;
+      } else if(val==='Fill in Contact Fields'){
+        html = `<div class="field"><label>Select Contact Fields</label>
+          <div id="itFieldsMS" class="ms" data-placeholder="Select Contact Fields"></div>
+        </div>`;
+        actionExtras.innerHTML = html;
+        fieldsMS = createTagMultiSelect(document.getElementById('itFieldsMS'), CONTACT_FIELD_OPTIONS, new Set());
+      } else {
+        actionExtras.innerHTML = '';
+        fieldsMS = null;
+      }
+    }
+    itAction.addEventListener('change', renderActionExtras);
+    // start with nothing selected; no extras shown
+
+    document.getElementById('itAdd').addEventListener('click', ()=>{
+      const name = (document.getElementById('itName').value||'').trim();
+      const type = document.getElementById('itType').value || '';
+      const action = document.getElementById('itAction').value || '';
+      const shortD = (document.getElementById('itShort').value||'').trim();
+      const longD = (document.getElementById('itLong').value||'').trim();
+      if(!name){ alert('Please enter Task Name.'); return; }
+      if(!type){ alert('Please select Task Type.'); return; }
+      if(!action){ alert('Please select Action.'); return; }
+
+      let extra = '';
+      if(action==='Send Email'){
+        const emSel = document.getElementById('itEmail');
+        const em = emSel ? (emSel.value || '') : '';
+        if(!em){ alert('Please select an Email template.'); return; }
+        extra = ` • Template: ${em}`;
+      } else if(action==='Send Text'){
+        const txSel = document.getElementById('itText');
+        const tx = txSel ? (txSel.value || '') : '';
+        if(!tx){ alert('Please select a Text template.'); return; }
+        extra = ` • Template: ${tx}`;
+      } else if(action==='Fill in Contact Fields'){
+        const fields = fieldsMS ? fieldsMS.getSelected() : [];
+        if(!fields.length){ alert('Please select at least one Contact Field.'); return; }
+        extra = ` • Fields: ${fields.join(', ')}`;
+      }
+
+      const desc = `[${type}] • ${action}${extra}${shortD?(' • '+shortD):''}${longD?(' — '+longD):''}`;
+      recipes.custom.push({title:name, desc, enabled:true});
+      renderStep2(); // re-render to show the new custom task and reset form
+    });
+  }
+
+  function customToggle(task, idx){
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eef2f7';
+    row.innerHTML=`<input type="checkbox" ${task.enabled?'checked':''} data-i="${idx}"> <strong>${task.title}</strong> <span class="muted">${task.desc||''}</span>`;
+    const box=row.querySelector('input');
+    box.addEventListener('change', ()=> { task.enabled = box.checked; updateCounter(); });
+    return row;
+  }
+
+  function renderStep3(){
+    const journeys = attendees[0].journeys && attendees[0].journeys.length ? attendees[0].journeys.join(', ') : 'None';
+    const enabledTasks = [...selectedSmartTasks];
+    recipes.custom.forEach(t=>{ if(t.enabled) enabledTasks.push(t.title); });
+
+    eomBody.innerHTML = `
+      <div class="card" style="border:1px solid #eef2f7;border-radius:12px;padding:12px">
+        <h4 style="margin:6px 0 8px">Summary</h4>
+        <div style="display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:start">
+          <div class="muted">Contact</div><div>Vladimir</div>
+          <div class="muted">Meeting Status</div><div><span class="chip selected">${meetingStatus}</span></div>
+          <div class="muted">Journeys</div><div>${journeys}</div>
+          <div class="muted">Smart Tasks</div><div>${enabledTasks.length?('<ul>'+enabledTasks.map(t=>`<li>${t}</li>`).join('')+'</ul>'):'None'}</div>
+        </div>
+      </div>`;
+  }
+
+  function updateCounter(){
+    const rc = selectedSmartTasks.length + (recipes.custom.filter(t=>t.enabled).length);
+    eomCounter.textContent = `1 selected • ${rc} task${rc===1?'':'s'}`;
+  }
+
+  // --- NEW: Follow-Up Summary rendering & controls ---
+  const followUpCard = document.getElementById('followUpCard');
+  function renderFollowUpSummary(){
+    // Fill header
+    document.getElementById('fuContact').textContent = attendees[0].name || 'Contact';
+    document.getElementById('fuStatus').textContent = meetingStatus;
+
+    // Journeys tags
+    const jWrap = document.getElementById('fuJourneys');
+    jWrap.innerHTML = '';
+    const jList = (attendees[0].journeys && attendees[0].journeys.length) ? attendees[0].journeys : ['None'];
+    jList.forEach(j=>{
+      const span = document.createElement('span');
+      span.className = 'pill';
+      span.textContent = j;
+      jWrap.appendChild(span);
+    });
+
+    // Tasks list (selected smart tasks + enabled custom tasks)
+    const tWrap = document.getElementById('fuTasks');
+    tWrap.innerHTML = '';
+    const tasks = [...selectedSmartTasks];
+    recipes.custom.forEach(t=>{ if(t.enabled) tasks.push(`Custom: ${t.title}`); });
+    if(tasks.length===0){
+      const li = document.createElement('li'); li.textContent = 'None';
+      tWrap.appendChild(li);
+    } else {
+      tasks.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; tWrap.appendChild(li); });
+    }
+
+    // Queued time and applies to
+    document.getElementById('fuQueuedTime').textContent = 'Just now';
+    document.getElementById('fuApplies').textContent = attendees[0].name || 'Contact';
+  }
+
+  function showPostMeetingUI(){
+    // Disable End Meeting button
+    endBtn.classList.add('disabled');
+    endBtn.setAttribute('disabled', 'true');
+    // Show and render the summary card
+    followUpCard.style.display = 'block';
+    renderFollowUpSummary();
+  }
+  // --- END: Follow-Up Summary additions ---
+
+  function runSmartTasks(){
+    const payload = { meeting_id:'mtg_demo', meeting_status: meetingStatus, recipes: [] };
+    const contactId = attendees[0].id;
+
+    // Assign to chosen journeys if any were selected
+    if(attendees[0].journeys && attendees[0].journeys.length){
+      payload.recipes.push({ type:'assign_to_journeys', contacts: [{ contact_id: contactId, journeys: attendees[0].journeys }] });
+    }
+
+    // Map selected smart tasks to payload actions
+    selectedSmartTasks.forEach(t=>{
+      if(t==='Modify Contact Details'){
+        payload.recipes.push({ type:'modify_contact_details', contacts:[contactId], attributes:{} });
+      } else if(t==='Forward Contact To Pete for Follow-Up'){
+        payload.recipes.push({ type:'forward_to_pete_follow_up', contacts:[contactId] });
+      } else if(t==='Create a Project'){
+        payload.recipes.push({ type:'create_project', contacts:[contactId], project_name:'From Meeting' });
+      } else if(t==='Log Note'){
+        payload.recipes.push({ type:'log_note', contacts:[contactId], note:'From End-of-Meeting' });
+      }
+    });
+
+    // Include enabled custom tasks
+    recipes.custom.forEach(t=>{ if(t.enabled) payload.recipes.push({ type:'custom_task', title:t.title, description:t.desc||'' }); });
+
+    console.log('SMART TASKS PAYLOAD', payload);
+
+    // Update main page UI with Follow-Up Summary
+    showPostMeetingUI();
+
+    closeEOM();
+    alert('Smart Tasks queued!');
+  }
+
+  // Open EOM handler remains
+</script>
+</body>
+</html>
