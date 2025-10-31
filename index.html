@@ -168,6 +168,63 @@
 
   /* Tag-style multi-select (reusing base .ms styles) */
   .ms-option[data-value]{cursor:pointer}
+
+  /* ===== Invitees ===== */
+.inv-card .panel{padding:0}
+.inv-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+.inv-title{font-size:28px}
+.inv-bulk{display:none;gap:8px;align-items:center}
+.inv-bulk .btn{padding:8px 12px;border-radius:8px}
+.inv-list{display:flex;flex-direction:column}
+.inv-row{display:grid;grid-template-columns:auto auto 1fr auto auto;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid #f2f5fa}
+.inv-row:last-child{border-bottom:0}
+.inv-check{width:22px;height:22px}
+.inv-ava{width:36px;height:36px;border-radius:999px;object-fit:cover;border:1px solid #e7edf5;background:#fff}
+.inv-main{display:flex;flex-direction:column}
+.inv-name{font-weight:800}
+.inv-email{font-size:13px;color:#667085}
+.inv-actions{display:flex;gap:8px;align-items:center}
+.inv-chip{border:1px solid #e7edf5;background:#fff;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700;cursor:pointer}
+.inv-chip.active{background:#eef4ff;border-color:#cfe0ff;color:#0b3b91}
+.inv-remove{background:transparent;border:1px solid #e7edf5;border-radius:8px;padding:6px;cursor:pointer}
+
+/* small helper link */
+.link-blue{color:#0b62ff;text-decoration:underline;cursor:pointer;font-weight:700}
+
+/* ===== Automations (simple) ===== */
+.auto-card .panel{padding:16px;min-height:140px;display:block;color:#6b7790}
+
+
+/* ===== Automations: touchpoints ===== */
+.tp-wrap{padding:14px}
+.tp-list{display:flex;flex-direction:column;gap:10px}
+.tp-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;border:1px solid #e7edf5;border-radius:10px;padding:10px 12px;background:#fff}
+.tp-ico{width:28px;height:28px;display:grid;place-items:center;border:1px solid #e7edf5;border-radius:8px;background:#fbfdff}
+.tp-title{font-weight:700}
+.tp-meta{font-size:13px;color:#667085}
+.tp-actions{display:flex;gap:8px}
+.tp-btn{background:transparent;border:1px solid #e7edf5;border-radius:8px;padding:6px;cursor:pointer}
+.tp-btn:hover{background:#f6f9fe}
+
+/* blue link-style add */
+.tp-add{margin-top:12px}
+.tp-add .tp-add-link{color:#0b62ff;font-weight:700;cursor:pointer;display:inline-block}
+.tp-add .tp-add-link small{font-weight:400;color:#94a3b8;margin-left:6px}
+
+.tp-menu{position:relative;display:inline-block}
+.tp-fly{position:absolute;z-index:30;left:0;top:calc(100% + 6px);background:#fff;border:1px solid #e7edf5;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.08);display:none;min-width:260px}
+.tp-menu.open .tp-fly{display:block}
+.tp-mi{padding:10px 12px;border-bottom:1px solid #f2f5fa;cursor:pointer}
+.tp-mi:last-child{border-bottom:0}
+.tp-mi:hover{background:#f8fafc}
+
+/* editor specifics inside your existing .modal */
+.tp-editor .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tp-editor .hint{font-size:12px;color:#6b7790}
+.tp-preview{border:1px solid #e6ebf2;border-radius:10px;padding:10px;max-height:260px;overflow:auto;background:#fbfdff}
+
+
+
 </style>
 </head>
 <body>
@@ -234,6 +291,75 @@
       </div>
       <div class="fus-note">The journeys have been triggered, and the smart tasks are now in queue.</div> 
     </div>
+
+
+<!-- ===== Invitees ===== -->
+<div class="section-head">
+  <div class="section-title">Invitees</div>
+</div>
+<div class="card inv-card">
+  <div class="inv-head">
+    <div style="display:flex;gap:10px;align-items:center">
+      <!-- left side could hold filters later -->
+    </div>
+    <div id="invBulk" class="inv-bulk">
+      <span style="color:#667085;font-size:14px" id="invSelCount">0 selected</span>
+      <button class="btn" id="invBulkInvite">Mark as Invite</button>
+      <button class="btn primary" id="invBulkRegister">Mark as Register</button>
+    </div>
+  </div>
+  <div id="invList" class="inv-list"></div>
+  <div style="padding:12px 16px">
+    <span id="invAdd" class="link-blue">+ Add Invitee</span>
+  </div>
+</div>
+<!-- ===== End Invitees ===== -->
+
+<!-- ===== Automations ===== -->
+<div class="section-head" style="margin-top:28px">
+  <div class="section-title">Automations</div>
+</div>
+
+<div class="card auto-card">
+  <div class="tabs" id="autoTabs">
+    <div class="tab" data-tab="reg">Registered to a Meeting</div>
+    <div class="tab active" data-tab="inv">Invited to a Meeting</div>
+    <div class="tab" data-tab="start">Meeting Starts</div>
+    <div class="tab" data-tab="end">Meeting Ends</div>
+    <div class="tab" data-tab="res">Meeting Rescheduled</div>
+    <div class="tab" data-tab="can">Meeting Cancelled</div>
+  </div>
+
+  <div class="panel" id="autoPanel">
+    <div class="tp-wrap">
+      <div id="tpList" class="tp-list"></div>
+
+      <!-- add link is ALWAYS visible, even if list is empty -->
+      <div class="tp-add">
+        <div class="tp-menu" id="tpMenu">
+          <span class="tp-add-link">+ add Touchpoint</span>
+          <div class="tp-fly">
+            <div class="tp-mi" data-kind="workflow">Assign Workflow</div>
+            <div class="tp-mi" data-kind="broadcast">Broadcast Channel</div>
+            <div class="tp-mi" data-kind="transaction">Generate Transaction</div>
+            <div class="tp-mi" data-kind="email">Send Email</div>
+            <div class="tp-mi" data-kind="push">Send Push Notification</div>
+            <div class="tp-mi" data-kind="text">Send Text Message</div>
+            <div class="tp-mi" data-kind="attribute">Update Attribute(s)</div>
+            <div class="tp-mi" data-kind="webhook">Webhook</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- ===== End Automations ===== -->
+
+
+
+
+
     <!-- ===== Attendee Tasks (inserted) ===== -->
     <div class="section-head" style="margin-top:28px">
       <div class="section-title">Attendee Tasks</div>
@@ -610,6 +736,443 @@
   function closeModal(){ modal.classList.remove('open'); }
   closeModalBtn.addEventListener('click', closeModal); cancelBtn.addEventListener('click', closeModal);
   (function(){ let startX, startY, startL, startT, dragging=false; dragbar.addEventListener('mousedown', (e)=>{ dragging = true; const r = dialog.getBoundingClientRect(); startX = e.clientX; startY = e.clientY; startL = r.left; startT = r.top; document.body.style.userSelect='none'; }); window.addEventListener('mousemove', (e)=>{ if(!dragging) return; const dx = e.clientX - startX; const dy = e.clientY - startY; dialog.style.position='fixed'; dialog.style.left = (startL + dx) + 'px'; dialog.style.top = (startT + dy) + 'px'; }); window.addEventListener('mouseup', ()=>{ dragging=false; document.body.style.userSelect=''; }); })();
+
+
+/* ===== Automations touchpoints ===== */
+const TP_ICONS = {
+  email: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/></svg>`,
+  text: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>`,
+  attribute: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><path d="M3 14h7v7H3z"/></svg>`,
+  transaction: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>`
+};
+
+const AUTO_TABS = ['reg','inv','start','end','res','can'];
+
+/* seed data per tab */
+const TOUCHPOINTS = {
+  reg: [],
+  inv: [
+    {
+      id: crypto.randomUUID(), kind:'email',
+      title:'From: Segwik Client Success, To: Pete Romano, Generic Internal Meeting Alert Notification 2025, Immediately',
+      config:{ timing:'immediate', schedule:{n:5, unit:'minutes'},
+        sendFrom:{type:'Specific User', value:'Segwik Client Success'},
+        sendTo:{type:'Specific User', value:'Pete Romano'},
+        cc:{type:'', value:''},
+        template:'Generic Internal Meeting Alert Notification 2025',
+        preview:`Owner: [owner_firstname] [owner_lastname]\n\nDate and Time: [meeting.start_time_utc|{"format":"MMMM Do, YYYY h:mm A z","timezone":"America/New_York"}]\n\nCUSTOMER INFO:\n[contact_firstname] [contact_lastname]\n[contact_primary_email]\n[contact_primary_phone]`
+      }
+    },
+    {
+      id: crypto.randomUUID(), kind:'text',
+      title:'From: Pete Romano, To: Contact, Generic Meeting Confirmation, Immediately',
+      config:{ timing:'immediate', schedule:{n:5, unit:'minutes'},
+        sendFrom:{type:'Specific User', value:'Pete Romano'},
+        sendTo:{type:'Contact', value:''},
+        phoneFrom:'User Direct Phone',
+        template:'Generic Meeting Confirmation',
+        preview:`Hi [firstname]! Pete Romano has invited you to a meeting. Please check your email for more details.`
+      }
+    },
+    {
+      id: crypto.randomUUID(), kind:'email',
+      title:'From: Pete Romano, To: Contact, Virtual Networking - Immediate, Immediately',
+      config:{ timing:'immediate', schedule:{n:5, unit:'minutes'},
+        sendFrom:{type:'Specific User', value:'Pete Romano'},
+        sendTo:{type:'Contact', value:''},
+        cc:{type:'', value:''},
+        template:'Virtual Networking - Immediate',
+        preview:`[segwik::footerDetail template_id=32269]\n\nLet’s Connect And Collaborate\n\n[segwik::footerDetail template_id=31814]\n\n... (long content) ...\n\n[segwik::footerDetail template_id=31800]`
+      }
+    },
+    {
+      id: crypto.randomUUID(), kind:'attribute',
+      title:'Insert Attribute(s), Immediately',
+      config:{ timing:'immediate', action:'Insert',
+        queryType:'Audience', audience:'audience-name',
+        customer:{ field:'', op:'', value:'' }
+      }
+    }
+  ],
+  start: [],
+  end: [],
+  res: [],
+  can: []
+};
+
+const tpList = document.getElementById('tpList');
+let activeAutoTab = 'inv';
+
+/* tabs switching */
+document.querySelectorAll('#autoTabs .tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('#autoTabs .tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    activeAutoTab = t.dataset.tab;
+    renderTP();
+  });
+});
+
+function renderTP(){
+  const rows = TOUCHPOINTS[activeAutoTab] || [];
+  tpList.innerHTML = '';
+
+  rows.forEach(tp=>{
+    const row = document.createElement('div'); row.className='tp-row';
+    const ico = document.createElement('div'); ico.className='tp-ico';
+    ico.innerHTML = TP_ICONS[tp.kind] || TP_ICONS.transaction;
+
+    const main = document.createElement('div');
+    const ttl = document.createElement('div'); ttl.className='tp-title'; ttl.textContent = tp.title;
+    const meta = document.createElement('div'); meta.className='tp-meta'; meta.textContent =
+      tp.kind === 'email'
+        ? 'Email touchpoint'
+        : tp.kind === 'text'
+          ? 'Text touchpoint'
+          : tp.kind === 'attribute'
+            ? 'Update Attribute(s)'
+            : 'Touchpoint';
+    main.appendChild(ttl); main.appendChild(meta);
+
+    /* edit + delete (NO extra pencil) */
+    const actions = document.createElement('div'); actions.className='tp-actions';
+    const edit = document.createElement('button'); edit.className='tp-btn'; edit.title='Edit';
+    edit.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>`;
+    edit.addEventListener('click', ()=> openTPEditor(tp));
+
+    const del = document.createElement('button'); del.className='tp-btn'; del.title='Remove';
+    del.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F2D56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+    del.addEventListener('click', ()=> openTouchpointConfirm(()=> {
+      const list = TOUCHPOINTS[activeAutoTab];
+      const i = list.findIndex(x=>x.id===tp.id);
+      if(i>-1){ list.splice(i,1); renderTP(); }
+    }));
+
+    actions.appendChild(edit); actions.appendChild(del);
+
+    /* clicking title = edit */
+    ttl.style.cursor='pointer';
+    ttl.addEventListener('click', ()=> openTPEditor(tp));
+
+    row.appendChild(ico);
+    row.appendChild(main);
+    row.appendChild(actions);
+    tpList.appendChild(row);
+  });
+}
+renderTP();
+
+/* + add Touchpoint menu */
+const tpMenu = document.getElementById('tpMenu');
+tpMenu.querySelector('.tp-add-link').addEventListener('click', (e)=>{ e.stopPropagation(); tpMenu.classList.toggle('open'); });
+document.addEventListener('click', ()=> tpMenu.classList.remove('open'));
+tpMenu.querySelectorAll('.tp-mi').forEach(mi=>{
+  mi.addEventListener('click', ()=>{
+    tpMenu.classList.remove('open');
+    const kind = mi.dataset.kind;
+    const newTP = {
+      id: crypto.randomUUID(),
+      kind: kind==='text' ? 'text' : (kind==='attribute' ? 'attribute' : (kind==='email' ? 'email' : 'transaction')),
+      title: kind==='email' ? 'Send Email (new)' : kind==='text' ? 'Send Text Message (new)' : kind==='attribute' ? 'Update Attribute(s) (new)' : `${mi.textContent} (new)`,
+      config: { timing:'immediate', schedule:{n:5,unit:'minutes'} }
+    };
+    TOUCHPOINTS[activeAutoTab].push(newTP);
+    renderTP();
+    openTPEditor(newTP);
+  });
+});
+
+/* touchpoint-specific confirm (reuses your existing confirmModal) */
+function openTouchpointConfirm(onYes){
+  const box = document.querySelector('#confirmModal .box .q');
+  const oldText = box.textContent;
+  box.textContent = 'Are you sure you want to remove touchpoint?';
+  document.getElementById('confirmModal').classList.add('open');
+  const yesBtn = document.getElementById('confirmYes');
+  const noBtn = document.getElementById('confirmNo');
+  const closeBtn = document.getElementById('confirmClose');
+
+  function cleanup(){
+    document.getElementById('confirmModal').classList.remove('open');
+    box.textContent = oldText;
+    yesBtn.onclick = null;
+    noBtn.onclick = null;
+    closeBtn.onclick = null;
+  }
+
+  yesBtn.onclick = ()=>{ onYes(); cleanup(); };
+  noBtn.onclick = cleanup;
+  closeBtn.onclick = cleanup;
+}
+
+/* keep your openTPEditor(...) function exactly as you already pasted above */
+
+
+/* editor builders */
+function openTPEditor(tp){
+  const body = document.createElement('div');
+  body.className = 'tp-editor';
+
+  /* timing */
+  body.innerHTML += `
+    <div class="field">
+      <label>Email/Text Timing</label>
+      <select id="tpTiming">
+        <option value="immediate">Immediately</option>
+        <option value="other">Other Timing</option>
+      </select>
+    </div>
+    <div id="tpSched" class="row" style="display:none">
+      <div class="field"><label>Schedule Interval</label><input id="tpN" class="input" type="number" min="1" value="5"></div>
+      <div class="field"><label>Unit</label>
+        <select id="tpUnit">
+          <option>minutes</option><option>hours</option><option>days</option><option>weeks</option><option>months</option>
+        </select>
+      </div>
+    </div>
+  `;
+
+  if(tp.kind === 'email'){
+    body.innerHTML += `
+      <div class="row">
+        <div class="field"><label>Send From</label>
+          <select id="tpFromType">
+            <option>Specific User</option>
+            <option>Contact Owner</option>
+            <option>Contact Creator</option>
+            <option>Contact Modifier</option>
+          </select>
+        </div>
+        <div class="field"><label>Send To</label>
+          <select id="tpToType">
+            <option>Specific User</option>
+            <option>Contact</option>
+            <option>Contact Owner</option>
+            <option>Contact Creator</option>
+            <option>Contact Modifier</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" id="tpFromRow">
+        <div class="field"><label>Specific User (From)</label><input id="tpFromVal" class="input" placeholder="Select user"/></div>
+        <div class="field"><label>Specific User (To)</label><input id="tpToVal" class="input" placeholder="Select user or leave blank for Contact"/></div>
+      </div>
+
+      <div class="row">
+        <div class="field"><label>CC</label>
+          <select id="tpCcType">
+            <option value="">—</option>
+            <option>Staff</option>
+            <option>Customer</option>
+          </select>
+        </div>
+        <div class="field" id="tpCcRow" style="display:none"><label>Choose CC</label><input id="tpCcVal" class="input" placeholder="Pick staff/customer"/></div>
+      </div>
+
+      <div class="field"><label>Choose Email</label>
+        <select id="tpTpl">
+          <option>Generic Internal Meeting Alert Notification 2025</option>
+          <option>Generic Meeting Confirmation</option>
+          <option>Virtual Networking - Immediate</option>
+        </select>
+      </div>
+
+      <div class="field"><label>Preview</label>
+        <div id="tpPreview" class="tp-preview"></div>
+        <div class="hint">Preview scrolls when content is long.</div>
+      </div>
+    `;
+  } else if(tp.kind === 'text'){
+    body.innerHTML += `
+      <div class="row">
+        <div class="field"><label>Send From</label>
+          <select id="tpFromType">
+            <option>Specific User</option>
+            <option>Contact Owner</option>
+            <option>Contact Creator</option>
+            <option>Contact Modifier</option>
+          </select>
+        </div>
+        <div class="field"><label>Send To</label>
+          <select id="tpToType">
+            <option>Contact</option>
+            <option>Specific User</option>
+            <option>Contact Owner</option>
+            <option>Contact Creator</option>
+            <option>Contact Modifier</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" id="tpFromRow">
+        <div class="field"><label>Specific User (From)</label><input id="tpFromVal" class="input" placeholder="Select user"/></div>
+        <div class="field"><label>Specific User (To)</label><input id="tpToVal" class="input" placeholder="Optional"/></div>
+      </div>
+
+      <div class="field"><label>Phone Number From</label>
+        <select id="tpPhoneFrom">
+          <option>Organization Phone</option>
+          <option>User Direct Phone</option>
+        </select>
+      </div>
+
+      <div class="field"><label>Choose Text</label>
+        <select id="tpTpl">
+          <option>Generic Meeting Confirmation</option>
+        </select>
+      </div>
+
+      <div class="field"><label>Preview</label>
+        <div id="tpPreview" class="tp-preview"></div>
+      </div>
+    `;
+  } else if(tp.kind === 'attribute'){
+    body.innerHTML += `
+      <div class="field"><label>Timing</label>
+        <select id="tpTimingAttr">
+          <option value="immediate">Immediately</option>
+          <option value="other">Other Timing</option>
+        </select>
+      </div>
+      <div id="tpSched" class="row" style="display:none">
+        <div class="field"><label>Schedule Interval</label><input id="tpN" class="input" type="number" min="1" value="5"></div>
+        <div class="field"><label>Unit</label>
+          <select id="tpUnit">
+            <option>minutes</option><option>hours</option><option>days</option><option>weeks</option><option>months</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field"><label>Action</label>
+          <select id="tpAttrAction"><option>Update</option><option>Delete</option><option selected>Insert</option></select>
+        </div>
+        <div class="field"><label>Query Type</label>
+          <select id="tpQueryType">
+            <option>Audience</option>
+            <option>Companies</option>
+            <option>Customers</option>
+            <option>Events</option>
+            <option>Meetings</option>
+            <option>Registrations</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="tpQueryAudience" class="field"><label>Audience</label><input id="tpAudience" class="input" placeholder="audience name"/></div>
+
+      <div id="tpQueryCustomer" class="row" style="display:none">
+        <div class="field"><label>Field</label><select id="tpCustField"><option>contact type</option><option>tags</option><option>industry</option></select></div>
+        <div class="field"><label>Operator</label><select id="tpCustOp"><option>equal</option><option>not equal</option><option>not null</option><option>null</option></select></div>
+      </div>
+      <div class="field" id="tpCustValueWrap" style="display:none"><label>Value</label><input id="tpCustValue" class="input" placeholder="e.g., lead"/></div>
+    `;
+  }
+
+  /* open the modal using your existing helpers */
+  openModal('Configure Touchpoint', body.outerHTML, 'Save');
+  const cfg = tp.config || {};
+
+  /* hydrate & wire */
+  const timingSel = document.getElementById('tpTiming') || document.getElementById('tpTimingAttr');
+  const schedRow = document.getElementById('tpSched');
+  if(timingSel){
+    timingSel.value = (cfg.timing==='other') ? 'other' : 'immediate';
+    schedRow.style.display = timingSel.value==='other' ? 'grid' : 'none';
+    timingSel.addEventListener('change', ()=> schedRow.style.display = timingSel.value==='other' ? 'grid' : 'none');
+  }
+  const n = document.getElementById('tpN'); const unit = document.getElementById('tpUnit');
+  if(n && unit){ n.value = (cfg.schedule?.n ?? 5); unit.value = (cfg.schedule?.unit ?? 'minutes'); }
+
+  if(tp.kind==='email' || tp.kind==='text'){
+    document.getElementById('tpFromType').value = cfg.sendFrom?.type || 'Specific User';
+    document.getElementById('tpToType').value   = cfg.sendTo?.type   || (tp.kind==='text' ? 'Contact' : 'Specific User');
+    document.getElementById('tpFromVal').value  = cfg.sendFrom?.value || '';
+    document.getElementById('tpToVal').value    = cfg.sendTo?.value   || '';
+    if(tp.kind==='email'){
+      document.getElementById('tpCcType').value = cfg.cc?.type || '';
+      document.getElementById('tpCcRow').style.display = cfg.cc?.type ? 'block' : 'none';
+      document.getElementById('tpCcType').addEventListener('change', (e)=> document.getElementById('tpCcRow').style.display = e.target.value ? 'block' : 'none');
+      document.getElementById('tpCcVal').value = cfg.cc?.value || '';
+    }
+    document.getElementById('tpTpl').value = cfg.template || '';
+    document.getElementById('tpPreview').textContent = cfg.preview || '';
+  }
+
+  if(tp.kind==='attribute'){
+    const qt = document.getElementById('tpQueryType');
+    const aud = document.getElementById('tpQueryAudience');
+    const cust = document.getElementById('tpQueryCustomer');
+    const custValWrap = document.getElementById('tpCustValueWrap');
+
+    qt.value = cfg.queryType || 'Audience';
+    document.getElementById('tpAttrAction').value = cfg.action || 'Insert';
+    document.getElementById('tpAudience').value = cfg.audience || '';
+    document.getElementById('tpCustField').value = cfg.customer?.field || 'contact type';
+    document.getElementById('tpCustOp').value = cfg.customer?.op || 'equal';
+    document.getElementById('tpCustValue').value = cfg.customer?.value || '';
+
+    function paintQuery(){
+      const isAud = qt.value==='Audience';
+      aud.style.display = isAud ? 'block' : 'none';
+      cust.style.display = isAud ? 'none' : (qt.value==='Customers' ? 'grid' : 'none');
+      custValWrap.style.display = (qt.value==='Customers' && ['equal','not equal'].includes(document.getElementById('tpCustOp').value)) ? 'block' : 'none';
+    }
+    qt.addEventListener('change', paintQuery);
+    document.getElementById('tpCustOp').addEventListener('change', paintQuery);
+    paintQuery();
+  }
+
+  /* hook save */
+  saveBtn.onclick = ()=>{
+    /* timing */
+    tp.config = tp.config || {};
+    const timingSel2 = document.getElementById('tpTiming') || document.getElementById('tpTimingAttr');
+    if(timingSel2){ tp.config.timing = timingSel2.value; }
+    if(n && unit){ tp.config.schedule = { n: Number(n.value||5), unit: unit.value||'minutes' }; }
+
+    if(tp.kind==='email' || tp.kind==='text'){
+      tp.config.sendFrom = { type: document.getElementById('tpFromType').value, value: document.getElementById('tpFromVal').value.trim() };
+      tp.config.sendTo   = { type: document.getElementById('tpToType').value,   value: document.getElementById('tpToVal').value.trim() };
+      if(tp.kind==='email'){
+        tp.config.cc = { type: document.getElementById('tpCcType').value, value: (document.getElementById('tpCcVal').value||'').trim() };
+      }
+      if(tp.kind==='text'){
+        tp.config.phoneFrom = document.getElementById('tpPhoneFrom').value;
+      }
+      tp.config.template = document.getElementById('tpTpl').value;
+      tp.config.preview  = document.getElementById('tpPreview').textContent;
+    }
+
+    if(tp.kind==='attribute'){
+      tp.config.action   = document.getElementById('tpAttrAction').value;
+      tp.config.queryType = document.getElementById('tpQueryType').value;
+      tp.config.audience = document.getElementById('tpAudience').value.trim();
+      tp.config.customer = {
+        field: document.getElementById('tpCustField').value,
+        op:    document.getElementById('tpCustOp').value,
+        value: (document.getElementById('tpCustValue').value||'').trim()
+      };
+    }
+
+    /* update display title quickly from core fields for readability */
+    if(tp.kind==='email'){
+      tp.title = `From: ${tp.config.sendFrom.value||tp.config.sendFrom.type}, To: ${tp.config.sendTo.type}, ${tp.config.template}, ${tp.config.timing==='immediate'?'Immediately':`After ${tp.config.schedule.n} ${tp.config.schedule.unit}`}`;
+    } else if(tp.kind==='text'){
+      tp.title = `From: ${tp.config.sendFrom.value||tp.config.sendFrom.type}, To: ${tp.config.sendTo.type}, ${tp.config.template}, ${tp.config.timing==='immediate'?'Immediately':`After ${tp.config.schedule.n} ${tp.config.schedule.unit}`}`;
+    } else if(tp.kind==='attribute'){
+      const q = tp.config.queryType==='Audience' ? tp.config.audience : `${tp.config.customer.field} ${tp.config.customer.op} ${tp.config.customer.value||''}`.trim();
+      tp.title = `${tp.config.action} Attribute(s) – ${tp.config.queryType}: ${q || 'configured'}`;
+    }
+
+    closeModal();
+    renderTP();
+  };
+}
+
+
+
 
   // ------- Float windows (view forms/docs/video) – background NOT dark -------
   function createFloatWindow(title, bodyHTML){
@@ -1249,6 +1812,145 @@
 
   submitEndBtn.addEventListener('click', runSmartTasks);
 
+
+/* ===== Invitees: data + rendering ===== */
+const INVITEES = [
+  { id:'i1',
+    name:'Alicia Kim',
+    company:'Garden State Roofing',
+    email:'alicia@gstate.example',
+    head:'https://i.pravatar.cc/72?img=47',
+    status:'Invite', // 'Invite' | 'Register'
+    checked:false
+  },
+  { id:'i2',
+    name:'Marcus Lee',
+    company:'Harbor Analytics',
+    email:'marcus@harbor.example',
+    head:'https://i.pravatar.cc/72?img=52',
+    status:'Invite',
+    checked:false
+  },
+  { id:'i3',
+    name:'Priya Shah',
+    company:'Coastal Wellness',
+    email:'priya@coastal.example',
+    head:'https://i.pravatar.cc/72?img=57',
+    status:'Register',
+    checked:false
+  }
+];
+
+const invList = document.getElementById('invList');
+const invBulk = document.getElementById('invBulk');
+const invSelCount = document.getElementById('invSelCount');
+
+function renderInvitees(){
+  invList.innerHTML = '';
+  INVITEES.forEach((c)=> invList.appendChild(inviteeRow(c)));
+  updateInviteeBulkBar();
+}
+
+function inviteeRow(c){
+  const row = document.createElement('div');
+  row.className = 'inv-row';
+  row.dataset.id = c.id;
+
+  // left checkbox for multi-select
+  const cb = document.createElement('input');
+  cb.type='checkbox'; cb.className='inv-check'; cb.checked = !!c.checked;
+  cb.addEventListener('change', ()=>{ c.checked = cb.checked; updateInviteeBulkBar(); });
+
+  // avatar
+  const ava = document.createElement('img');
+  ava.className='inv-ava'; ava.src = c.head; ava.alt = c.name;
+
+  // main text
+  const main = document.createElement('div');
+  main.className='inv-main';
+  const nm = document.createElement('div');
+  nm.className = 'inv-name';
+  nm.textContent = `${c.name} — ${c.company}`;
+  const em = document.createElement('div');
+  em.className = 'inv-email';
+  em.textContent = c.email;
+  main.appendChild(nm); main.appendChild(em);
+
+  // status chips (Invite | Register)
+  const actions = document.createElement('div');
+  actions.className = 'inv-actions';
+  const chipInvite = document.createElement('button');
+  chipInvite.type='button'; chipInvite.className='inv-chip';
+  chipInvite.textContent='Invite';
+  const chipReg = document.createElement('button');
+  chipReg.type='button'; chipReg.className='inv-chip';
+  chipReg.textContent='Register';
+  function paint(){
+    chipInvite.classList.toggle('active', c.status==='Invite');
+    chipReg.classList.toggle('active', c.status==='Register');
+  }
+  chipInvite.addEventListener('click', ()=>{ c.status='Invite'; paint(); });
+  chipReg.addEventListener('click',  ()=>{ c.status='Register'; paint(); });
+  paint();
+  actions.appendChild(chipInvite); actions.appendChild(chipReg);
+
+  // remove (X)
+  const del = document.createElement('button');
+  del.className='inv-remove';
+  del.title='Remove';
+  del.innerHTML='✖';
+  del.addEventListener('click', ()=>{
+    const idx = INVITEES.findIndex(x=>x.id===c.id);
+    if(idx>-1){ INVITEES.splice(idx,1); renderInvitees(); }
+  });
+
+  row.appendChild(cb);
+  row.appendChild(ava);
+  row.appendChild(main);
+  row.appendChild(actions);
+  row.appendChild(del);
+  return row;
+}
+
+function updateInviteeBulkBar(){
+  const selected = INVITEES.filter(x=>x.checked);
+  invSelCount.textContent = `${selected.length} selected`;
+  // only show mass actions if 2+ are selected (as requested)
+  invBulk.style.display = selected.length >= 2 ? 'flex' : 'none';
+}
+
+// Mass actions
+document.getElementById('invBulkInvite').addEventListener('click', ()=>{
+  INVITEES.forEach(x=>{ if(x.checked) x.status='Invite'; });
+  renderInvitees();
+});
+document.getElementById('invBulkRegister').addEventListener('click', ()=>{
+  INVITEES.forEach(x=>{ if(x.checked) x.status='Register'; });
+  renderInvitees();
+});
+
+// "+ Add Invitee" link
+document.getElementById('invAdd').addEventListener('click', ()=>{
+  const id = Math.random().toString(36).slice(2,9);
+  INVITEES.push({
+    id,
+    name:'New Contact',
+    company:'Company',
+    email:'name@example.com',
+    head:'https://i.pravatar.cc/72?img=64',
+    status:'Invite',
+    checked:false
+  });
+  renderInvitees();
+});
+
+// initial paint
+renderInvitees();
+
+
+
+
+
   /* ===== Attendee Tasks logic (scoped) ===== */
   const tasks = {
     pre: [
@@ -1493,6 +2195,5 @@
 </script>
 </body>
 </html>
-
 
 
